@@ -1,0 +1,106 @@
+-- MariaDB dump 10.17  Distrib 10.4.14-MariaDB, for Win64 (AMD64)
+--
+-- Host: localhost    Database: ub_test
+-- ------------------------------------------------------
+-- Server version	10.4.14-MariaDB
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `drzave`
+--
+
+DROP TABLE IF EXISTS `drzave`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `drzave` (
+  `drz_cdidrzava` int(11) NOT NULL DEFAULT 0,
+  `drz_dssnaziv` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `drz_dssoznaka` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`drz_cdidrzava`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `drzave`
+--
+
+LOCK TABLES `drzave` WRITE;
+/*!40000 ALTER TABLE `drzave` DISABLE KEYS */;
+INSERT INTO `drzave` VALUES (1,'Srbija','sr'),(2,'Hrvatska','hr'),(3,'Španija ','es'),(4,'Poljska','pl'),(5,'Italija',''),(6,'Crna Gora',''),(7,'Republika Srpska',''),(8,'Juzna Koreja',''),(9,'Makedonija',''),(10,'BIH',''),(11,'Slovenija',''),(12,'Kosovo',''),(13,'Svajcarska',''),(14,'Nemacka',''),(15,'Danska',''),(16,'Kina','');
+/*!40000 ALTER TABLE `drzave` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `mesta`
+--
+
+DROP TABLE IF EXISTS `mesta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mesta` (
+  `mes_cdimesto` int(11) NOT NULL DEFAULT 0,
+  `mes_cdiokrug` int(11) DEFAULT NULL,
+  `mes_dssnaziv` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `mes_dsspostanskibroj` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`mes_cdimesto`),
+  KEY `fk_mesta_okruzi_1` (`mes_cdiokrug`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mesta`
+--
+
+LOCK TABLES `mesta` WRITE;
+/*!40000 ALTER TABLE `mesta` DISABLE KEYS */;
+INSERT INTO `mesta` VALUES (59,-1,'asdasd','asdadasd'),(46,-1,'sdfsdffd','sdfsfdfdsfd'),(45,-1,'sdfsdffd','sdfsfdfdsfd'),(58,-1,'asdasd','asdadasd'),(57,-1,'asdasd','asdadasd'),(56,-1,'asdasd','asdadasd'),(44,-1,'sdfsdffd','sdfsfdfdsfd'),(31,-1,'asdasddas','asdasd'),(32,-1,'asdasddas','asdasd'),(53,-1,'asdasd','asdadasd'),(33,-1,'sdfsdffd','sdfsfdfdsfd'),(34,-1,'sdfsdffd','sdfsfdfdsfd'),(35,-1,'sdfsdffd','sdfsfdfdsfd'),(36,-1,'sdfsdffd','sdfsfdfdsfd'),(37,-1,'sdfsdffd','sdfsfdfdsfd'),(38,-1,'sdfsdffd','sdfsfdfdsfd'),(39,-1,'sdfsdffd','sdfsfdfdsfd'),(40,-1,'sdfsdffd','sdfsfdfdsfd'),(41,-1,'sdfsdffd','sdfsfdfdsfd'),(18,-1,'dasdasd','dasdasd'),(42,-1,'sdfsdffd','sdfsfdfdsfd'),(55,-1,'asdasd','asdadasd'),(47,-1,'sdfsdffd','sdfsfdfdsfd'),(43,-1,'sdfsdffd','sdfsfdfdsfd'),(30,-1,'asdasddas','asdasd'),(29,-1,'asdasddas','asdasd'),(54,-1,'asdasd','asdadasd'),(52,-1,'asdasd','asdadasd'),(19,-1,'kuiuiu','uiouio'),(20,-1,'kuiuiu','uiouio'),(51,-1,'asdasd','asdadasd'),(50,-1,'asdasd','asdadasd'),(49,-1,'asdasd','asdadasd'),(69,9,'asdasdassddasad','asdasdasdddddddasdasd'),(61,-1,'',''),(70,8,'asddasd','asdasdasd'),(63,7,'Novi Beograd321','11000'),(80,9,'asdasdasddasdasd','asdasddasd'),(68,9,'asdas','asddas'),(71,8,'asdasdasd','asddas'),(72,7,'asdasdasd','adsasdas'),(73,9,'asdasdasd','adasdasdas'),(74,8,'asdasdasd','asdadasd'),(75,8,'asdasdas','asdasd'),(76,9,'asddasdas','asasdasd'),(77,9,'dsfsdffds','sdfdsffd'),(78,8,'adasdasd','asdasdas'),(79,1,'dasdasddas','asdasd');
+/*!40000 ALTER TABLE `mesta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `okruzi`
+--
+
+DROP TABLE IF EXISTS `okruzi`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `okruzi` (
+  `okr_cdiokrug` int(255) NOT NULL,
+  `okr_dssnaziv` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `okr_dssoznaka` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `okr_cdidrzava` int(255) DEFAULT NULL,
+  PRIMARY KEY (`okr_cdiokrug`),
+  KEY `fk_okruzi_drzave_1` (`okr_cdidrzava`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `okruzi`
+--
+
+LOCK TABLES `okruzi` WRITE;
+/*!40000 ALTER TABLE `okruzi` DISABLE KEYS */;
+INSERT INTO `okruzi` VALUES (9,'Barselona','brs',3),(8,'Dalmacija','dlm',2),(7,'Grad Beograd','',1),(1,'Sombor','',1),(0,NULL,NULL,0),(10,'Katalonija','',3),(11,'Varšava','',4),(12,'Srbija','',1),(13,'Kina','',16),(14,'Južna Koreja','',8),(15,'Crna Gora','',1),(16,'Raška','',1),(17,'Borski okrug','br',1),(18,'Zlatiborski okrug','',1),(19,'Južnobanatski okrug','',1),(20,'Hrvatska','',1),(21,'Pomoravski','',1),(22,'Gangnam','gngn',8);
+/*!40000 ALTER TABLE `okruzi` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2021-03-22 10:41:03

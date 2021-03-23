@@ -83,14 +83,16 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                              
                             </tr>
                         </thead>
+                        <div class ='div-tbody'>
+
+                        </div>
                         <tfoot>
                             <tr>
-                                <th>#</th>
-                                <th>Okrug</th>
-                                <th>Oznaka</th>
-                                <th>Drzava</th>
-                                <th>Akcija</th>
-                            </tr>
+                                <th class="">#</th>
+                                <th class="">Okrug</th>
+                                <th class="">Oznaka</th>
+                                <th class="">Drzava</th>
+                                <th class="text-center">Akcija</th>
                         </tfoot>
                     </table>
                     </div>
@@ -119,6 +121,8 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
   
 $( document ).ready(function() {
 
+//--------------------------------------------------------------------------------------------
+
         $('#example').DataTable({
             language: {
                 "lengthMenu": "Prikaz po stranici _MENU_ ",
@@ -139,7 +143,9 @@ $( document ).ready(function() {
               type: 'POST'
             },
               fnDrawCallback: function( oSettings ) {
+
                    $('[data-toggle="tooltip"]').tooltip()
+
                 },
 
                     columns: [
@@ -155,76 +161,203 @@ $( document ).ready(function() {
         });
 
 
+//----BRISANJE OKRUGA----------------------------------------------------------------------------------------
 
-         
-            $('body').on('click','.brisanjeOkruga', function(e){
+$('body').on('click', '.brisanjeOkruga', function(e) {
 
-                var idOkruga = $(this).attr("data-id");
+            var idOkruga = $(this).attr("data-id");
 
-                bootbox.confirm({
-                    message: "Da li ste sigurni da zelite da izbrisete okrug?",
-                    buttons: {
-                        confirm: {
-                            label: 'Da',
-                            className: 'btn-success'
-                        },
-                        cancel: {
-                            label: 'Ne',
-                            className: 'btn-danger'
-                        }
+            bootbox.confirm({
+                message: "Da li ste sigurni da zelite da izbrisete okrug?",
+                buttons: {
+                    confirm: {
+                        label: 'Da',
+                        className: 'btn-success'
                     },
-
-                    callback: function (result) {
-                 
-                    console.log("brisem okrug sa id-jem :" + idOkruga)
-      
+                    cancel: {
+                        label: 'Ne',
+                        className: 'btn-danger'
                     }
-                });
-            });
+                },
 
-            // ------------------------------------------------------------------------------------------
+                callback: function(result) {
+
+                    var str = {
+                        'akcija': 'brisanje',
+                        'idOkruga': idOkruga
+                    }
+                    $.ajax({
+                        url: "./ajax/test.php",
+                        method: "POST",
+                        data: str
+                    }).success(function(response) {
+
+                            if (response == 'ok') {
+                                console.log('Ic okej')
+                                var rowCount = $('tbody tr').length;
+                                if(rowCount>1){
+                                    $('#example').DataTable().ajax.reload();
+                                }else{
+                                    $('tbody').remove()
+                                    $('.dataTables_info').hide()
+                                    $('.dataTables_paginate').hide()
+                                    $('.paging_simple_numbers').hide()
+                                    $('#example_wrapper').find('.dataTables_length').hide()
+                                }
+                            }
+                        })
+                    }
+                })
+            })
+            
+
+// ------------------------------------------------------------------------------------------
 
 
              $('body').on('click','.izmenaOkruga', function(e){
-                //var redniBroj = $(this).parent().parent()
                 var idOkruga = $(this).attr("data-id");
                 var idDrzave = $(this).attr("data-id-drzava");
-                //var cnt = $(this).parent().parent().find('.counter').html()
                 $('#okruziModal').load('./modals/okruzi_modal.php',{'akcija':'izmena' , 'idOkruga' : idOkruga, 'idDrzave':idDrzave},function(){
                     $('#okruziModal').modal('show')
                     $('#drzavaSelect').select2();
                 })
             })
 
-             //---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
                 
           
               $('body').on('click','#sacuvaj',function(e){
 
                 e.preventDefault();
                 var str = $('#modalForm').serialize();
-                console.log(str)
-
+                //console.log(str)
 
                 $.ajax({
                     url: "./ajax/test.php",
                     method: "POST",
                     data: str
                     }).success(function(response) {
-                        console.log(response)
+                        //console.log(response)
                         if(response == 'jok'){
                             console.log("Nije uspelo!")
                          } else {
-                            console.log("ok");
-                            $('#example').DataTable().ajax.reload();
-                         }
-                    });  
+                            //console.log("ok");
 
-                    $('#okruziModal').modal('hide');
+                            var json = JSON.parse(response);
+                            var akcija = json['akcija']
+//-------NOVO-------------------------------------------------------------------------------------
+                            if(json['akcija'] == 'novo'){
 
+                                var idOkruga = json['idOkrug']
+                                var nazivOkruga = json['nazivOkrug']
+                                var oznaka = json['oznaka']
+                                var drzava = json['drzava']
+                                var drzavaId = json['drzavaId']
+
+                                var html=
+                                
+                                `<tbody>
+                                    <tr class='odd'>
+                                        <td><span class="counter">1</span></td>
+                                        <td><span class="podatakOkrug">${nazivOkruga}</span></td>
+                                        <td><span class="podatakOznaka">${oznaka}</span></td>
+                                        <td><span class="podatakOkrug">${drzava}</span></td>
+                                        <td>
+
+                                        <div class ="d-flex">
+                                            <div class="custom col-sm-6 p-1">
+                                                <div class="izmenaOkruga float-right" data-id-drzava ="${drzavaId}" data-id="${idOkruga}" data-toggle="tooltip" data-placement="top" title="izmeni mesto">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+                                                        ></path>
+                                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+
+                                            <div class="custom col-sm-6 p-1">
+                                                <div class="brisanjeOkruga" data-id="${idOkruga}" data-toggle="tooltip" data-placement="top" title="izbriši mesto">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"
+                                                            />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>`
+
+                            
+                                $( "tbody" ).replaceWith(html);
+                                $('.dataTables_info').hide()
+                                $('.dataTables_paginate').hide()
+                                $('.paging_simple_numbers').hide()
+                                $('#example_wrapper').find('.dataTables_length').hide()
+                                $('[data-toggle="tooltip"]').tooltip()
+                            }
+//-----IZMENA---------------------------------------------------------------------------------------                         
+                         if(akcija=='izmena'){
+                                var rowCount = $('tbody tr').length;
+
+                                if(rowCount>1){
+                                    $('#example').DataTable().ajax.reload(null, false);
+                                } else{
+                                    console.log(json)
+                                    var idOkruga = json['idOkrug']
+                                    var nazivOkruga = json['nazivOkrug']
+                                    var oznaka = json['oznaka']
+                                    var drzava = json['drzava']
+                                    var drzavaId = json['drzavaId']
+
+                                    var html=
+                                    
+                                    `<tbody>
+                                        <tr class='odd'>
+                                            <td><span class="counter">1</span></td>
+                                            <td><span class="podatakOkrug">${nazivOkruga}</span></td>
+                                            <td><span class="podatakOznaka">${oznaka}</span></td>
+                                            <td><span class="podatakOkrug">${drzava}</span></td>
+                                            <td>
+
+                                            <div class ="d-flex">
+                                                <div class="custom col-sm-6 p-1">
+                                                    <div class="izmenaOkruga float-right" data-id-drzava ="${drzavaId}" data-id="${idOkruga}" data-toggle="tooltip" data-placement="top" title="izmeni mesto">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+                                                            ></path>
+                                                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+
+                                                <div class="custom col-sm-6 p-1">
+                                                    <div class="brisanjeOkruga" data-id="${idOkruga}" data-toggle="tooltip" data-placement="top" title="izbriši mesto">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"
+                                                                />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>`
+
+                                    $( "tbody" ).replaceWith(html);
+                                }
+                        }
+                    }
+                });  
+                $('#okruziModal').modal('hide');
                 });
 
-              //--------------------------------------------------------------------------------------------
+//-----BUTTON NOVO---------------------------------------------------------------------------------------
+
                $('#novo').on('click', function(e){
                 $('#okruziModal').load('./modals/okruzi_modal.php',{'akcija':'novo'},function(){
                     $('#okruziModal').modal('show')
@@ -233,7 +366,7 @@ $( document ).ready(function() {
                     });
                 })
             })
-
+//--------------------------------------------------------------------------------------------
 });
 
     </script>

@@ -6,6 +6,8 @@ if(isset($_POST['akcija'])){
 
     $akcija = $_POST['akcija'];
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
     if($akcija == 'izmena'){
 
        $idDrzave =      $_POST['drzava'];
@@ -13,19 +15,32 @@ if(isset($_POST['akcija'])){
        $oznakaOkruga =  $_POST['oznaka'];
        $idOkrug =       $_POST['id-okrug'];
 
+        $vratiDrzavu = "SELECT drz_dssnaziv FROM drzave WHERE drz_cdidrzava=".$idDrzave;
+        $podaciDrzava = $conn->query($vratiDrzavu);
+        $drzavaString = $podaciDrzava->fetch_assoc()['drz_dssnaziv'];
+
        $sql = "UPDATE okruzi SET okr_dssnaziv = '".$nazivOkruga."',okr_dssoznaka = '".$oznakaOkruga."',okr_cdidrzava=".$idDrzave." WHERE okr_cdiokrug = ".$idOkrug;
 
        $conn->query($sql);
 
        if($conn->affected_rows){
-        echo 'ok';
-       }
+            $arr = [
+                'akcija' =>         'izmena', 
+                'idOkrug'=>         $idOkrug,
+                'nazivOkrug' =>     $nazivOkruga,
+                'oznaka'=>          $oznakaOkruga,
+                'drzava'=>          $drzavaString,
+                'drzavaId'=>        $idDrzave
+            ];
+            
+            echo json_encode($arr);
+        }
        else{
         echo 'jok';
        }
 
     }
-
+//////////////////////////////////////////////////////////////////////////////////////////
     if($akcija == 'novo'){
 
         $idOkrug = $_POST['id-okrug'];
@@ -39,14 +54,41 @@ if(isset($_POST['akcija'])){
         $conn->query($sql);
 
         if($conn->affected_rows){
-            echo 'ok';
+            $vratiDrzavu = "SELECT drz_dssnaziv FROM drzave WHERE drz_cdidrzava=".$drzava;
+            $podaciDrzava = $conn->query($vratiDrzavu);
+            $drzavaString = $podaciDrzava->fetch_assoc()['drz_dssnaziv'];
+            $arr = [
+                'akcija' =>         'novo', 
+                'idOkrug'=>         $idOkrug,
+                'nazivOkrug' =>     $nazivOkruga,
+                'oznaka'=>          $oznaka,
+                'drzava'=>          $drzavaString,
+                'drzavaId'=>        $drzava
+            ];
+
+            echo json_encode($arr);
         }
         else{
             echo 'jok';
         }
     }
 
+//////////////////////////////////////////////////////////////////////////////////////////
 
+    if($akcija == 'brisanje'){
+
+        $idOkrug = $_POST['idOkruga'];
+
+        $sql = "DELETE FROM okruzi WHERE okr_cdiokrug = ".$idOkrug;
+
+        $conn->query($sql);
+
+        if($conn->affected_rows > 0){
+            echo 'ok';
+        } else{
+            echo 'jok';
+        }
+    }
 
 
 

@@ -14,10 +14,8 @@ if($akcija == 'izmena'){
 
 }
 
-if($akcija = 'novo'){
+if($akcija == 'novo'){
   $idDrzave = -1;
-
-
   $proveriMax = "SELECT MAX(okr_cdiokrug) maksimum from okruzi";
   $maxId = $conn->query($proveriMax);
   $idOkruga = (int)$maxId->fetch_assoc()['maksimum'];

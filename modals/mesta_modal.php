@@ -68,7 +68,6 @@ if($akcija == 'izmena'){
                               <?php
                             }
 
-
                         ?>
                     <option value=<?=$row['okr_cdiokrug']?>><?=$row['okr_dssnaziv']?></option>
                         <?php

@@ -135,7 +135,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                                 <th class ='text-center' scope="col">Akcija</th>
                             </tr>
                         </thead>
-                        
+
                         <tbody id="osvezi">
 
                         <?php
@@ -145,7 +145,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                             
                         ?>
                             <tr class='red' id=<?=$brojac?>>
-                                <th class='counter'><?=$brojac?></th>
+                                <td class='counter'><?=$brojac?></th>
                                 <td class='podatakMesto'><?=$row['mes_dssnaziv']?></td>
                                 <td class='podatakBroj'><?=$row['mes_dsspostanskibroj']?></td>
                                 <td class='podatakOkrug'><?=$row['okr_dssnaziv']?></td>
@@ -219,14 +219,8 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
             ordering:false,
             columnDefs:[{
                 className: 'dt-body-center'
-            }]
+            }],
         });
-
-
-
-
-
-
 
             $('[data-toggle="tooltip"]').tooltip()
 
@@ -277,7 +271,8 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                                     brojac+=1
                                 });                            
                             }
-                            $('[data-toggle="tooltip"]').tooltip()             
+                            $('[data-toggle="tooltip"]').tooltip()  
+                               
                         });
                     }
                 }
@@ -356,12 +351,16 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
 
 
                                                             
-                                var idElementa = $("div").find("[data-id='" + id + "']").parent().parent().attr('id')
+                                var idElementa = $("div").find("[data-id='" + id + "']").parent().parent().parent().attr('id')
                                 //var okrugValue = $( "#myselect option:selected" ).text();
                                 var okrugHtml = $( ".okrugSelect option[value="+okrug+"]").html()
                                 var drzavaHtml = $( ".drzavaSelect option[value="+drzava+"]").html()
+
+                                console.log("REDNI BROJ : "+ idElementa)
+
+
                                 $('#'+idElementa).html(
-                                    `
+                                `
                                         <th class='counter'>
                                         <td>${mesto}</td>
                                         <td>${postanskiBroj}</td>
@@ -371,7 +370,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
 
                                         <td class ='d-flex'>
                                         <div class="custom col-sm-6 p-1">
-                                            <div class='izmenaMesta' data-id='${id}'  data-toggle="tooltip" data-placement="top" title="izmeni mesto">
+                                            <div class='izmenaMesta float-right' data-id='${id}'  data-toggle="tooltip" data-placement="top" title="izmeni mesto">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                                   <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
                                                   <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
@@ -388,6 +387,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                                     </td>
 
                                     `)
+
                                 var brojac = 0
                             $( ".counter" ).each(function() {
                                 $( this ).text(brojac+1);

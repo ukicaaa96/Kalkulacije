@@ -33,8 +33,18 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
     </style>
   </head>
   <body>
-
-    <div class = "container pt-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-center">
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNavAltMarkup">
+            <div class="navbar-nav justify-content-center" >
+                <a class="nav-item nav-link" href="http://localhost/ub_test/">Pocetna</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/mesta.php">Mesta</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/okruzi.php">Okruzi</a>
+                <a class="nav-item nav-link" href="#">Drzave</a>
+                
+            </div>
+        </div>
+    </nav>
+    <div class = "col-sm-10 container pt-3">
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
@@ -42,12 +52,12 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                         Petraga
                     </div>
                     <div class="card-body">
-                    <form id = 'formaPretraga'>
+                    <form method="POST" id = 'formaPretraga'>
                         <input type="hidden" name="akcija" value="pretraga">
                         <div class="form-group d-flex ">
                             <div class = "col-sm-6 p-0">
                                 <label for="usr">Naziv okruga:</label>
-                                <input name = 'mesto' type="text" class="form-control">
+                                <input id='parametar' name = 'okrug' type="text" class="form-control">
                             </div>
                         </div>           
                         <button id = 'pretraga' class="btn btn-primary">Pretraži</button>
@@ -74,7 +84,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                     <table id="example" class="display" style="width:100%">
                         <thead>
                             <tr>
-                                <th class="">#</th>
+                                <th class="text-center">#</th>
                                 <th class="">Okrug</th>
                                 <th class="">Oznaka</th>
                                 <th class="">Drzava</th>
@@ -88,7 +98,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                         </div>
                         <tfoot>
                             <tr>
-                                <th class="">#</th>
+                                <th class="text-center">#</th>
                                 <th class="">Okrug</th>
                                 <th class="">Oznaka</th>
                                 <th class="">Drzava</th>
@@ -115,13 +125,15 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
     <script src="bootbox.min.js"></script>
     <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
     <script type="text/javascript" src="DataTables/datatables.min.js"></script>
+    <script type="text/javascript" src="js.cookie.min.js"></script>
+    <script type="text/javascript" src="jquery.cookie.min.js"></script>
 
     <script>
     
   
 $( document ).ready(function() {
 
-//--------------------------------------------------------------------------------------------
+//----------DATA TABLE----------------------------------------------------------------------------------
 
         $('#example').DataTable({
             language: {
@@ -149,7 +161,7 @@ $( document ).ready(function() {
                 },
 
                     columns: [
-            {data:'counter'},
+            {data:'counter', className : 'text-center'},
             {data:'okrug'},
             {data:'oznaka'},
             {data:'drzava'},
@@ -160,10 +172,9 @@ $( document ).ready(function() {
             }
         });
 
+//---------BRISANJE OKRUGA----------------------------------------------------------------------------------------
 
-//----BRISANJE OKRUGA----------------------------------------------------------------------------------------
-
-$('body').on('click', '.brisanjeOkruga', function(e) {
+        $('body').on('click', '.brisanjeOkruga', function(e) {
 
             var idOkruga = $(this).attr("data-id");
 
@@ -193,7 +204,6 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                     }).success(function(response) {
 
                             if (response == 'ok') {
-                                console.log('Ic okej')
                                 var rowCount = $('tbody tr').length;
                                 if(rowCount>1){
                                     $('#example').DataTable().ajax.reload();
@@ -204,6 +214,8 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                                     $('.paging_simple_numbers').hide()
                                     $('#example_wrapper').find('.dataTables_length').hide()
                                 }
+
+                                bootbox.alert("Uspešno ste izbrisali okrug!")
                             }
                         })
                     }
@@ -211,7 +223,7 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
             })
             
 
-// ------------------------------------------------------------------------------------------
+// --------------IZMENA OKRUGA----------------------------------------------------------------------------
 
 
              $('body').on('click','.izmenaOkruga', function(e){
@@ -223,7 +235,7 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                 })
             })
 
-//---------------------------------------------------------------------------------------------
+//------------------DODAJ NOVO / IZMENI---------------------------------------------------------------------------
                 
           
               $('body').on('click','#sacuvaj',function(e){
@@ -245,7 +257,7 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
 
                             var json = JSON.parse(response);
                             var akcija = json['akcija']
-//-------NOVO-------------------------------------------------------------------------------------
+//-------AKO JE NOVO-------------------------------------------------------------------------------------
                             if(json['akcija'] == 'novo'){
 
                                 var idOkruga = json['idOkrug']
@@ -258,7 +270,7 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                                 
                                 `<tbody>
                                     <tr class='odd'>
-                                        <td><span class="counter">1</span></td>
+                                        <td class="text-center"><span class="text-center counter">1</span></td>
                                         <td><span class="podatakOkrug">${nazivOkruga}</span></td>
                                         <td><span class="podatakOznaka">${oznaka}</span></td>
                                         <td><span class="podatakOkrug">${drzava}</span></td>
@@ -297,13 +309,16 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                                 $('.paging_simple_numbers').hide()
                                 $('#example_wrapper').find('.dataTables_length').hide()
                                 $('[data-toggle="tooltip"]').tooltip()
+
+                                bootbox.alert("Uspešno ste dodali okrug!")
                             }
-//-----IZMENA---------------------------------------------------------------------------------------                         
+//-----AKO JE IZMENA---------------------------------------------------------------------------------------                         
                          if(akcija=='izmena'){
                                 var rowCount = $('tbody tr').length;
 
                                 if(rowCount>1){
                                     $('#example').DataTable().ajax.reload(null, false);
+                                    bootbox.alert("Uspešno ste izbrisali okrug!")
                                 } else{
                                     console.log(json)
                                     var idOkruga = json['idOkrug']
@@ -316,7 +331,7 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                                     
                                     `<tbody>
                                         <tr class='odd'>
-                                            <td><span class="counter">1</span></td>
+                                            <td><span class="text-center counter">1</span></td>
                                             <td><span class="podatakOkrug">${nazivOkruga}</span></td>
                                             <td><span class="podatakOznaka">${oznaka}</span></td>
                                             <td><span class="podatakOkrug">${drzava}</span></td>
@@ -349,6 +364,7 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                                     </tbody>`
 
                                     $( "tbody" ).replaceWith(html);
+                                    bootbox.alert("Uspešno ste izmenili okrug!")
                                 }
                         }
                     }
@@ -366,7 +382,19 @@ $('body').on('click', '.brisanjeOkruga', function(e) {
                     });
                 })
             })
-//--------------------------------------------------------------------------------------------
+
+//------PRETRAGA--------------------------------------------------------------------------------------
+
+
+   $('#pretraga').on('click', function () {
+      
+        var parametarPretrage = $("#parametar").val();
+
+        $.cookie('parametar', parametarPretrage)
+        $('#example').DataTable().page(0).draw('page');
+
+    });
+
 });
 
     </script>

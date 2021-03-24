@@ -72,7 +72,7 @@ if(isset($_POST['akcija'])){
             echo 'jok';
         }
     }
-
+    
 //////////////////////////////////////////////////////////////////////////////////////////
 
     if($akcija == 'brisanje'){
@@ -90,31 +90,42 @@ if(isset($_POST['akcija'])){
         }
     }
 
-
-
-
-
-
-
 }
 
 // ======================================================== DATA TABLES ============================================================
 else{
 
-    if(isset($_POST["parametar"])){
-        $parametar = $_POST["parametar"];
-        $sql = "SELECT * 
-                FROM okruzi
-                INNER JOIN drzave
-                ON drz_cdidrzava = okr_cdidrzava 
-                WHERE okr_dssnaziv LIKE "%".$parametar."%"";
+    // if(isset($_COOKIE["parametar"])){
+    //     $parametar = $_POST["parametar"];
+    //     $sql = "SELECT * 
+    //             FROM okruzi
+    //             INNER JOIN drzave
+    //             ON drz_cdidrzava = okr_cdidrzava 
+    //             WHERE okr_dssnaziv LIKE %'".$parametar."'";
+    // }
+    // else{
+    //     $sql = "SELECT * 
+    //             FROM okruzi
+    //             INNER JOIN drzave
+    //             ON drz_cdidrzava = okr_cdidrzava";
+    //     }
+//---------------NAZIV-------------------------------------------------
+    if(isset($_COOKIE['parametar'])){
+        $parametar = $_COOKIE['parametar'];
+    }else{
+        $parametar = '';
     }
-    else{
-        $sql = "SELECT * 
-                FROM okruzi
-                INNER JOIN drzave
-                ON drz_cdidrzava = okr_cdidrzava";
-        }
+
+
+    $sql=  "SELECT * 
+            FROM okruzi
+            INNER JOIN drzave
+            ON drz_cdidrzava = okr_cdidrzava 
+            WHERE 
+            okr_dssnaziv LIKE '%".$parametar."%' OR
+            okr_dssoznaka LIKE '%".$parametar."%' OR
+            drz_dssnaziv LIKE '%".$parametar."%'";
+                
 
     $akcijaClick = '';
 

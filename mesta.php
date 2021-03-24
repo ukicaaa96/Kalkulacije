@@ -34,18 +34,19 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
   </head>
   <body>
 
-<!--     <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-center">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-center">
         <div class="collapse navbar-collapse justify-content-center" id="navbarNavAltMarkup">
             <div class="navbar-nav justify-content-center" >
-                <a class="nav-item nav-link" href="#">Pocetna</a>
-                <a class="nav-item nav-link" href="#">Mesta</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/">Pocetna</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/mesta.php">Mesta</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/okruzi.php">Okruzi</a>
                 <a class="nav-item nav-link" href="#">Drzave</a>
-                <a class="nav-item nav-link" href="#">Okruzi</a>
+                
             </div>
         </div>
-    </nav> -->
+    </nav>
 
-    <div class = "container pt-3">
+    <div class = "col-sm-10 container pt-3">
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
@@ -127,7 +128,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                     <table id='mytable' class="">
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
+                                <th class ="text-center" scope="col">#</th>
                                 <th scope="col">Naziv</th>
                                 <th scope="col">Poštanski broj</th>
                                 <th scope="col">Okrug</th>
@@ -145,7 +146,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                             
                         ?>
                             <tr class='red' id=<?=$brojac?>>
-                                <td class='counter'><?=$brojac?></th>
+                                <td class='text-center counter'><?=$brojac?></th>
                                 <td class='podatakMesto'><?=$row['mes_dssnaziv']?></td>
                                 <td class='podatakBroj'><?=$row['mes_dsspostanskibroj']?></td>
                                 <td class='podatakOkrug'><?=$row['okr_dssnaziv']?></td>

@@ -1,9 +1,5 @@
-Tabele za kalkulacije
+Vraca kalkulacije
 
--kalkulacije main
--kalkulacije details
--artikli
--magacini
--dobavljaci
--grupe artikla
-
+-klik na kalkulacije vraca stavke
+-crud za kalkulacije
+-pretraga po artiklima za stavke 

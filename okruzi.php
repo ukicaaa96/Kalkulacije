@@ -103,6 +103,7 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                                 <th class="">Oznaka</th>
                                 <th class="">Drzava</th>
                                 <th class="text-center">Akcija</th>
+                            </tr>
                         </tfoot>
                     </table>
                     </div>
@@ -366,10 +367,10 @@ $( document ).ready(function() {
                                     $( "tbody" ).replaceWith(html);
                                     bootbox.alert("Uspešno ste izmenili okrug!")
                                 }
+                            }
                         }
-                    }
-                });  
-                $('#okruziModal').modal('hide');
+                    });  
+                    $('#okruziModal').modal('hide');
                 });
 
 //-----BUTTON NOVO---------------------------------------------------------------------------------------

@@ -1,0 +1,9 @@
+Tabele za kalkulacije
+
+-kalkulacije main
+-kalkulacije details
+-artikli
+-magacini
+-dobavljaci
+-grupe artikla
+

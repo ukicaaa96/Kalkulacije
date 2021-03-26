@@ -227,7 +227,7 @@ CREATE TABLE `kalkulacijedetail` (
 
 LOCK TABLES `kalkulacijedetail` WRITE;
 /*!40000 ALTER TABLE `kalkulacijedetail` DISABLE KEYS */;
-INSERT INTO `kalkulacijedetail` VALUES (1,1,11,2,123,0,0,123,147.6),(2,2,792,20,150,0,11.111,166.67,200),(3,2,792,10,150,0,11.1111,166.667,200),(4,3,8,1,23,0,-13.0435,20,24),(5,3,10,1,23,0,0,23,27.6),(6,4,8,50,23,0,8.696,25,30),(7,4,4,25,23,0,0.0000000000000142109,23,27.6),(8,6,4,1,10,0,0,125,150),(14,5,1550,1,0,0,0,0,0),(10,6,0,0,0,0,0,0,0),(11,6,1550,1,1,1,1,1,1.2),(15,7,0,0,0,0,0,0,0),(20,9,2036,100,100,0,5340,5440,5440),(19,9,2035,100,100,0,5000,5100,5100),(18,9,726,1,200,0,0,200,240),(13,5,61,1,0,0,0,0,0),(17,9,1485,1,2580,0,0,2580,3096),(21,10,792,10,500,5,5.263,500,600),(22,10,2043,1,0,0,0,0,0);
+INSERT INTO `kalkulacijedetail` VALUES (1,1,11,2,123,0,0,123,147.6),(2,2,792,20,150,0,11.111,166.67,200),(3,2,792,10,150,0,11.1111,166.667,200),(4,3,8,1,23,0,-13.0435,20,24),(5,3,10,1,23,0,0,23,27.6),(6,4,8,50,23,0,8.696,25,30),(7,4,4,25,23,0,0.0000000000000142109,23,27.6),(8,6,4,1,10,0,0,125,150),(14,5,1550,1,0,0,0,0,0),(10,6,0,0,0,0,0,0,0),(11,6,1550,1,1,1,1,1,1.2),(15,7,0,0,0,0,0,0,0),(20,9,2036,100,100,0,5340,5440,5440),(19,9,2035,100,100,0,5000,5100,5100),(18,9,726,1,200,0,0,200,240),(13,5,61,1,0,0,0,0,0),(17,9,1485,1,2580,0,0,2580,3096);
 /*!40000 ALTER TABLE `kalkulacijedetail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -259,7 +259,7 @@ CREATE TABLE `kalkulacijemain` (
 
 LOCK TABLES `kalkulacijemain` WRITE;
 /*!40000 ALTER TABLE `kalkulacijemain` DISABLE KEYS */;
-INSERT INTO `kalkulacijemain` VALUES (1,'2019-10-17 12:10:14',1,'123','Test',2,1,'2019-10-17 00:00:00'),(2,'2019-10-17 13:05:52',1,'ssss','',1,1,'2019-10-17 00:00:00'),(3,'2019-10-18 10:18:44',2,'test','',2,1,'2019-10-18 00:00:00'),(4,'2020-01-15 14:44:10',1,'888/888','Test Stefan',2,1,'2019-10-24 00:00:00'),(5,'2020-01-31 14:11:26',4,'','',7,3,'2019-11-20 00:00:00'),(6,'2020-01-20 11:22:30',2,'test','nova kalkulacija testiranje unosa artikala iz nje',2,1,'2020-01-20 00:00:00'),(7,'2020-02-20 09:21:45',1,'','test lorem',9,1,'2020-02-20 00:00:00'),(8,'2020-02-22 09:21:36',3,'','lorem ipsum lipsum test',9,1,'2020-02-22 00:00:00'),(9,'2020-03-06 15:36:31',3,'','test - bogdan 2',9,1,'2020-03-06 00:00:00'),(10,'2020-08-09 08:59:40',4,'FT09062020','lipsum',9,1,'2020-08-09 00:00:00'),(11,'2021-03-25 11:44:52',1,'','',9,1,'2021-03-25 00:00:00');
+INSERT INTO `kalkulacijemain` VALUES (1,'2019-10-17 13:41:25',11223,'123','Test',2,1,'2019-10-17 00:00:00'),(2,'2019-10-17 13:39:44',1,'ssss123','',1,1,'2019-10-17 00:00:00'),(3,'2019-10-18 10:18:44',2,'test','',2,1,'2019-10-18 00:00:00'),(4,'2020-01-15 14:44:10',1,'888/888','Test Stefan',2,1,'2019-10-24 00:00:00'),(5,'2020-01-31 14:11:26',4,'','',7,3,'2019-11-20 00:00:00'),(6,'2020-01-20 11:22:30',2,'test','nova kalkulacija testiranje unosa artikala iz nje',2,1,'2020-01-20 00:00:00'),(7,'2020-02-20 09:21:45',1,'','test lorem',9,1,'2020-02-20 00:00:00'),(8,'2020-02-22 09:21:36',3,'','lorem ipsum lipsum test',9,1,'2020-02-22 00:00:00'),(9,'2020-03-06 15:36:31',3,'','test - bogdan 2',9,1,'2020-03-06 00:00:00');
 /*!40000 ALTER TABLE `kalkulacijemain` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -387,6 +387,34 @@ LOCK TABLES `okruzi` WRITE;
 INSERT INTO `okruzi` VALUES (9,'Barselonafdgfgdsfsfdasdasd123343asdasdasd','brsggfdssd',8),(8,'Dalmacija213123','dlmdasd44',2),(0,NULL,NULL,0),(10,'Katalonija','',15),(12,'Srbija123asdasd','32424234as',1),(14,'Južna Koreja','',8),(15,'Crna Gora','dasdaasdas',1),(16,'Raška','dsfsdffdsf',1),(17,'Borski okrug','br',1),(18,'Zlatiborski okrug','',1),(19,'Južnobanatski okrug','',1),(20,'Hrvatska','',1),(21,'Pomoravski','321',1),(22,'Gangnam','gngn',8),(23,'okruzic','okr',4),(24,'dsadas','asdasd',3),(25,'asdasdasd','asdasd',-1),(26,'dasd','asdasd',3),(27,'dasddas','asddas',2),(28,'asdasdasd','asdadas',1),(29,'Novo','new',1),(30,'asdasdas111212','adsasd',2),(31,'asdasdasdsad','asdads2121',2),(32,'asdasdasd','asdadsads',3),(33,'asdasdasasdasddasads','asdasd222a',1),(34,'asdasda','asdasdas',-1),(35,'asdasdasdasasdasddas','asdasdasda',1),(36,'asdasdasasdasd','asdadsasda',2),(37,'asdasdas','asdasddas',4),(38,'asdasddasdasasdasd','asdasddas',2),(39,'asdasdas2','dsasdasdas',3),(40,'asddasdddddd','asdasdas',3),(41,'sdfsfddasdasd','sdfdsfdsfa',1),(42,'dddasdasd','dddasdasd',1),(43,'dasdasd','asddasas',-1),(44,'asdasd','asdads332',4),(45,'asdasdasdasdasdasd','asdasd2222',2),(46,'asdasdas','asdasdas',4),(47,'dddd','dddd',3),(49,'1','2',13),(50,'3','2',1),(51,'asdasd123123','33123',1),(52,'1233u','3213',4),(53,'asdasddasdas12312312313123123123','asdasdasda',1),(54,'dsfdsf123','sdfsffff',2),(61,'nov okrug','okr',1),(56,'asdasdasdasd','asdadasd',4),(62,'new','n',3),(58,'d','d',-1),(59,'d','dd',3),(60,'asdasd','ddd',4);
 /*!40000 ALTER TABLE `okruzi` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `poreskestope`
+--
+
+DROP TABLE IF EXISTS `poreskestope`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `poreskestope` (
+  `pos_cdiporeskastopa` int(11) NOT NULL DEFAULT 0,
+  `pos_dssnaziv` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pos_vlniznos` float DEFAULT NULL,
+  `pos_dssfiskalwings` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pos_dssfiskalmetalink` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `pos_dssfiskalostalo` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`pos_cdiporeskastopa`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `poreskestope`
+--
+
+LOCK TABLES `poreskestope` WRITE;
+/*!40000 ALTER TABLE `poreskestope` DISABLE KEYS */;
+INSERT INTO `poreskestope` VALUES (1,'PDV 20%',20,'Đ','',''),(2,'PDV 10%',10,'E','',''),(3,'PDV 0%',0,'A',' ',' ');
+/*!40000 ALTER TABLE `poreskestope` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -397,4 +425,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-25 16:00:13
+-- Dump completed on 2021-03-26 15:31:45

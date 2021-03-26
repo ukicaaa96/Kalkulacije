@@ -76,6 +76,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                     <div class="card-body">
                     <form method="POST" id = 'formaPretraga'>
                         <input type="hidden" name="akcija" value="pretraga">
+                         <input type="hidden" name="komanda" value="1">
                         <div class="d-block">
                             <div class="form-group d-flex ">
                                 <div class = "col-sm-2">
@@ -179,7 +180,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                             <tbody id="kalkulacija-main">
 
 
-
+                            <!-- KALKUACIJA MAIN -->
 
 
                             </tbody>
@@ -244,24 +245,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                             </thead>
 
                             <tbody >
-
-                            <!--<tr>
-                                    <td class="text-center">#</td>
-                                    <td class="">Sifra</td>
-                                    <td class="">Artikli</td>
-                                    <td class="text-right">Kolicina</td>
-                                    <td class="text-right">Nabavna cena</td>
-                                    <td class="text-right">Rabat</td>
-                                    <td class="text-right">Cena sa popustom</td>
-                                    <td class="text-right">Marza</td>
-                                    <td class="text-right">VP cena</td>
-                                    <td class="text-right">Cena sa PDV</td>
-                                    <td class="text-right">Nabavna vrednost</td>
-                                    <td class="text-right">VP iznos</td>
-                                    <td class="text-right">Iznos sa PDV</td>
-                                    <td class="text-center">Novo</td>
-                                </tr> -->
-
+                                <!-- KALKULACIJE DETAILS -->
                             </tbody>
                         </table>
                     </div>
@@ -294,48 +278,40 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
     
   
         $( document ).ready(function() {
+// Ucitavanje --------------------------------------------------------------------------------------------
+          
+            $.cookie('C_datum-od', $("#datum-od").val())
+            $.cookie('C_datum-do', $("#datum-do").val())
+
+            var formatiranje = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 2 })
+
+            function ucitajKalkulacije(){
 
             $.cookie('C_datum-od', $("#datum-od").val())
             $.cookie('C_datum-do', $("#datum-do").val())
 
+            var str = {akcija : 'pretraga', komanda : '0'}
 
-// Racunanje vrednosti ------------------------------------------------------------------------------------------
+            $.ajax({
+                    url: "./ajax/kalkulacije_main.php",
+                    method: "POST",
+                    data: str
+                    }).success(function(response) {
+                        console.log(response)
+                        var json = JSON.parse(response)
+                        $('#kalkulacija-main').html(json['html']);
 
-            function osveziVrednosti(){
-                console.log('refresh')
-                var sumNabavna = 0
-                var sumProdajna = 0
-                $( ".nabavna-vrednost" ).each(function( indexN ) {
-                    var brojN = parseInt($(this).text())
-                    $(this).text(brojN.toFixed(2))
-                    sumNabavna += brojN
-                    $('#n-v').text(sumNabavna)
-                    if(sumNabavna == 0){
-                        $('#n-v').text("")
-                    }
-                    else{
-                        $('#n-v').text(sumNabavna.toFixed(2))
-                        $('#t-n').text(sumNabavna.toFixed(2))
-                    }
-                });
-            
-                $( ".prodajna-vrednost" ).each(function( indexP ) {
-                    var brojP = parseInt($(this).text())
-                    $(this).text(brojP.toFixed(2))
-                    sumProdajna += brojP
-                    if(sumProdajna == 0){
-                        $('#p-v').text("")
-                    }
-                    else{
-                        $('#p-v').text(sumProdajna.toFixed(2))
-                        $('#t-p').text(sumProdajna.toFixed(2))
-                    }
-                });
-            }
-// Kraj racunanje vrednosti ------------------------------------------------------------------------------------------
+                        $('#n-v').text(json['sumaNabavne'])
+                        $('#t-n').text(json['sumaNabavne'])
+                        $('#p-v').text(json['sumaProdajne'])
+                        $('#t-p').text(json['sumaProdajne'])
 
-            osveziVrednosti()
-            
+                        $('[data-toggle="tooltip"]').tooltip()
+                    });
+                }
+
+                ucitajKalkulacije()
+
 // Racunanje vrednosti ------------------------------------------------------------------------------------------
 
             $('.datum').datepicker({
@@ -405,7 +381,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                 type: 'post',
                 delay: 100,
                 processResults: function (data) {
-                  console.log(data);
+                  //console.log(data);
                   return {
                     results: data.res
                   };
@@ -415,36 +391,131 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
             });
             $('#artikli-pretraga').css('font-family','Times New Roman').css('font-weight','bold').css('visibility','hidden');
 
-
-//  ------------------------------------------------------------------------------------------
+//  PRETRAGA ------------------------------------------------------------------------------------------
 
         $("#pretraga").on("click",function(){
             var str = $("#formaPretraga").serialize()
 
             alert(str)
             
-
         })
 
-        var str = {akcija : 'test'}
+// --------Izmena kalkulacije------------------------------------------------------------------------------------------------
 
-         $.ajax({
+        $('body').on('click','.izmenaKalkulacije', function(e){
+            var idKalkulacije = $(this).attr("data-id-kalkulacija");
+            var idMagacina = $(this).attr("data-id-magacin");
+            var datumKalkulacije = $('#'+idKalkulacije+' .datum-kalkulacije').html()
+            var datumValute = $('#'+idKalkulacije+' .datum-valute').html()
+
+            $('#kalkulacijeModal').load('./modals/kalkulacije_modal.php',{'akcija':'izmena' , 'idKalkulacije' : idKalkulacije,
+            'idMagacina':idMagacina, 'datumKalkulacije' : datumKalkulacije, 'datumValute' : datumValute},function(){
+                $('#kalkulacijeModal').modal('show')
+                $('#modal-lokacija').select2({
+                    theme:'bootstrap'
+                });
+                $('#modal-dobavljac').select2({
+                      theme:'bootstrap'
+                })
+            })
+        })
+
+// --------Izmena kalkulacije------------------------------------------------------------------------------------------------
+
+        $('body').on('click','.brisanjeKalkulacije', function(e){
+            
+            var idKalkulacije = $(this).attr("data-id-kalkulacija");
+
+            bootbox.confirm({
+                    message: "Da li ste sigurni da zelite da izbrisete kalkulaciju?",
+                    buttons: {
+                        confirm: {
+                            label: 'Da',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'Ne',
+                            className: 'btn-danger'
+                        }
+                    },
+
+                    callback: function (result) {
+                        
+                    if(result){
+
+                        var str = {
+                        akcija: 'brisanje',
+                        id: idKalkulacije 
+                    }
+
+                    //console.log(str)
+                    $.ajax({
+                        url: "./ajax/kalkulacije_main.php",
+                        method: "POST",
+                        data: str
+                        }).success(function(response) {
+                            if(response=='ok'){
+                                //console.log(response)
+                                ucitajKalkulacije()
+                                $('[data-toggle="tooltip"]').tooltip()                                       
+                            }      
+                        });
+                    }
+                }
+            });
+        })
+
+
+//MODAL BRISI - IZMENI -------------------------------------------------------------------
+
+            $('body').on('click','#sacuvaj',function(e){
+
+                e.preventDefault();
+                var str = $('#modalForm').serialize();
+                console.log(str)
+                $.ajax({
                     url: "./ajax/kalkulacije_main.php",
                     method: "POST",
                     data: str
                     }).success(function(response) {
-                        console.log(response)
+                        var json = JSON.parse(response)
+                        var akcija = json['akcija'];
 
-                        $('#kalkulacija-main').html(response);
+                        // AKO JE IZMENA ---------------------------
+
+                        if(akcija == "izmena"){
+                            if(json['prouka'] == 'jok'){
+                                alert("Nije uspelo!")
+                            } else {
+                                var akcija = json['akcija'];
+                                alert('izmenio')
+                                ucitajKalkulacije()
+
+                                $('#kalkulacijeModal').modal('hide');
+                                $('[data-toggle="tooltip"]').tooltip()
+                            } 
+                        }
+
+                        // AKO JE NOVO --------------------------------
+
+                        if(akcija == "novo"){
+                            if(json['prouka'] == 'jok'){
+                                alert("Nije uspela izmena!")
+                            } else {
+                                var akcija = json['akcija'];
+                                alert('dodao novo')
+                                ucitajKalkulacije()
+
+                                $('#kalkulacijeModal').modal('hide');
+                                $('[data-toggle="tooltip"]').tooltip()
+                            } 
+                        }
+
                     });
+                });
 
 
-
-        
-
-
-
-
+         
         });
     </script>
   </body>

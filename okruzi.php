@@ -8,7 +8,6 @@ $sql = "SELECT drzave.drz_dssnaziv, mesta.mes_dssnaziv, okruzi.okr_dssnaziv, mes
         INNER JOIN drzave
         ON okruzi.okr_cdidrzava = drzave.drz_cdidrzava";
 
-
 $sqlOkruzi = "SELECT okr_dssnaziv,okr_cdiokrug FROM okruzi WHERE okr_cdiokrug>0";
 $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava>0";
 ?>

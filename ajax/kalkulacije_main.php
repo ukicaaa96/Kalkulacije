@@ -15,61 +15,93 @@ function datumUpdateFilter($datum, $bool){
 		}
 	}
 
-
-if($akcija == 'pretraga'){
-	
-	$parametriPretrage = '';
-
-	if ($_POST['komanda']=="1") {
-		if ($_POST['magacin'] > 0) {
-			$pretragaMagacin = " AND kam_cdimagacin LIKE'%". $_POST['magacin']."%'";
-		}
-		else{
-			$pretragaMagacin = "";
-		}
-
-		if ($_POST['dobavljac'] > 0) {
-			$pretragaDobavljac = " AND kam_cdidobavljac LIKE'%". $_POST['dobavljac']."%'";
-		}
-		else{
-			$pretragaDobavljac = "";
-		}
-
-		if($_POST['artikal'] > 0){
-			$pretragaArtikal = " AND art_cdiartikal LIKE'%". $_POST['artikal']."%'";
-		}
-		else{
-			$pretragaArtikal = "";
-		}
-
-		$pretragaNapomena = " AND kam_cdinapomena LIKE'%". $_POST['napomena']."%'";
-
-		$parametriPretrage = $pretragaMagacin.$pretragaDobavljac.$pretragaArtikal.$pretragaNapomena;
-	}
-
-	$sNabavne = 0;
-	$sProdajne = 0;
-
-	$sNabavne = 0;
-	$sProdajne = 0;
-	function datumFilter($datum)
+function datumFilter($datum)
 	{
 		$novDatum = date("d.m.Y", strtotime($datum));
 		return $novDatum;
 	}
 
-	//$C_datumOd=	$_COOKIE['C_datum-od'];
-	$C_datumOd= '26.03.2010';
-	$C_datumDo=	$_COOKIE['C_datum-do'];
 
-	$datumOd = date("Y-m-d", strtotime($C_datumOd));
-	$datumDo = date("Y-m-d", strtotime($C_datumDo));
+if($akcija == 'pretraga'){
+
+	$querySearch = "
+	SELECT * 
+	FROM kalkulacijemain
+	INNER JOIN 	kalkulacijedetail
+	ON kam_cdikalkulacijamain = kad_cdikalkulacijadetail
+	WHERE kam_datdatum BETWEEN '2019-10-17' AND '2021-03-26'
+	AND kam_datvaluta BETWEEN '2019-10-17' AND '2021-03-26'
+	AND kad_cdiartikal = 6
+	AND kam_cdimagacin = 1
+	AND kam_cdidobavljac = 1
+	and kam_dssnapomena = 'napomena'";
+
+	
+	$parametriPretrage = '';
+
+
+	if (isset($_POST['magacin-pretraga']) && $_POST['magacin-pretraga'] > 0) {
+		$pretragaMagacin = " AND kam_cdimagacin LIKE'%". $_POST['magacin-pretraga']."%'";
+	}
+	else{
+		$pretragaMagacin = "";
+	}
+
+	if (isset($_POST['dobavljac-pretraga']) && $_POST['dobavljac-pretraga'] > 0) {
+		$pretragaDobavljac = " AND kam_cdidobavljac LIKE'%". $_POST['dobavljac-pretraga']."%'";
+	}
+	else{
+		$pretragaDobavljac = "";
+	}
+
+	if(isset($_POST['artikal-pretraga']) && $_POST['artikal-pretraga'] > 0){
+		$pretragaArtikal = " AND kad_cdiartikal = ". $_POST['artikal-pretraga'];
+	}
+	else{
+		$pretragaArtikal = "";
+	}
+
+	if(isset($_POST['napomena']) && $_POST['napomena'] != ""){
+		$pretragaNapomena = " AND kam_dssnapomena LIKE'%". $_POST['napomena']."%'";
+	}
+	else{
+		$pretragaNapomena = "";
+	}
+
+		
+
+	$parametriPretrage = $pretragaMagacin.$pretragaDobavljac.$pretragaNapomena;
+
+	//echo $parametriPretrage;
+
+	$sNabavne = 	0;
+	$sProdajne = 	0;
+
+	$sNabavne = 	0;
+	$sProdajne = 	0;
+
+
+	if($_POST['komanda'] == '0'){
+
+		//$C_datumOd=	$_COOKIE['C_datum-od'];
+		$C_datumOd= 	'26.03.2021';
+		$C_datumDo=		$_COOKIE['C_datum-do'];
+
+		$datumOd = date("Y-m-d", strtotime($C_datumOd));
+		$datumDo = date("Y-m-d", strtotime($C_datumDo));
+
+	}else{
+		$datum1 = 	$_POST['datum-od'];
+		$datum2 = 	$_POST['datum-do'];
+		$datumOd = 	date("Y-m-d", strtotime($datum1));
+		$datumDo = 	date("Y-m-d", strtotime($datum2));
+	}
 
 	$sql =
 	"SELECT *
 	FROM kalkulacijemain
 	INNER JOIN kalkulacijedetail ON kalkulacijemain.kam_cdikalkulacijamain = kalkulacijedetail.kad_cdikalkulacijamain
-	WHERE kam_datdatum BETWEEN '".$datumOd."' AND '".$datumDo."'";
+	WHERE kam_datdatum BETWEEN '".$datumOd."' AND '".$datumDo."'". $parametriPretrage . $pretragaArtikal;
 
 	$provera = $conn->query($sql);
 
@@ -80,11 +112,13 @@ if($akcija == 'pretraga'){
 		$sqlKalkulacije = 
 		"SELECT *
 		FROM kalkulacijemain
-		WHERE kam_datdatum BETWEEN '".$datumOd."' AND '".$datumDo."'";
+		WHERE kam_datdatum BETWEEN '".$datumOd."' AND '".$datumDo."'" . $parametriPretrage;
+
 
 		$podaci = $conn->query($sqlKalkulacije);
 		$i = 1;
 
+		if($podaci->num_rows != 0 ){
 
 		while ($row = $podaci->fetch_assoc()) {
 //----------------------------------VRACANJE NABAVNE-----------------------------------------------------
@@ -94,6 +128,7 @@ if($akcija == 'pretraga'){
 			INNER JOIN kalkulacijedetail ON kalkulacijemain.kam_cdikalkulacijamain = kalkulacijedetail.kad_cdikalkulacijamain
 			WHERE kalkulacijedetail.kad_cdikalkulacijamain = ".$row['kam_cdikalkulacijamain'];
 
+			//echo $sql;
 			$nabavneCene = $conn->query($sql);
 			if($nabavneCene->num_rows > 0){
 				$sumaNabavne = 0;
@@ -158,7 +193,7 @@ if($akcija == 'pretraga'){
 		    $dat2 = datumFilter($row['kam_datvaluta']);
 
 			$html .= "
-			              		<tr id='".$row['kam_cdikalkulacijamain']."'>
+			              		<tr class='main' id='".$row['kam_cdikalkulacijamain']."'>
 
                                     <td class='text-center'>".$i."</td>
                                     <td class='text-right'>".$row['kam_nuibroj']."</td>
@@ -212,7 +247,7 @@ if($akcija == 'pretraga'){
 			";
 			$i ++;
 		}
-
+	
 	}
 
 	$arr = [
@@ -222,8 +257,9 @@ if($akcija == 'pretraga'){
 	];
 
 	echo json_encode($arr);
-
 }
+}
+
 
 //--KRAJ POCETNE PRETRAGE---------------------------------------------------------------------------------------------------
 

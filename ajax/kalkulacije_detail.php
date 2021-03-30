@@ -15,7 +15,7 @@ if ($akcija == 'pretraga') {
 	$i = 1;
 	while ($row = $podaci->fetch_assoc()) {
 
-
+		$artikal = 			$row['kad_cdiartikal'];
 		$idDetalja = 		$row['kad_cdikalkulacijadetail'];
 		$sifraArtikla = 	$row['art_dsssifra'];
 		$nazivArtikla = 	$row['art_dssnaziv'];
@@ -38,9 +38,9 @@ if ($akcija == 'pretraga') {
 
 		$cenaPdv = 			(int)$cenaVp+ ((int)$poreskaStopa/100)*(int)$cenaVp;
 
-		$nabavnaVrednost = 	$cenaSaPopustom;
-		$vpIznos = 			$cenaVp;
-		$iznosPdv = 		$cenaPdv;
+		$nabavnaVrednost = 	$cenaSaPopustom * (int)$kolicina;
+		$vpIznos = 			$cenaVp * (int)$kolicina;
+		$iznosPdv = 		$cenaPdv * (int)$kolicina;
 
 
 		
@@ -50,21 +50,21 @@ if ($akcija == 'pretraga') {
             <tr>
 
                 <td class="text-center">'.$i.'</td>
-                <td class="">'.$sifraArtikla.'</td>
- 				<td class="text-left">'.$nazivArtikla.'</td>
-				<td class="text-right">'.number_format((int)$kolicina, 2, '.', ',').'		</td>
-				<td class="text-right">'.number_format((int)$nabavnaCena, 2, '.', ',').'		</td>
-                <td class="text-right">'.number_format((int)$rabat, 2, '.', ',').'%			</td>
-                <td class="text-right">'.number_format((int)$cenaSaPopustom, 2, '.', ',').'</td>
-                <td class="text-right">'.number_format((int)$marza, 2, '.', ',').'%</td>
-                <td class="text-right">'.number_format((int)$cenaVp, 2, '.', ',').'</td>
-                <td class="text-right">'.number_format((int)$cenaPdv, 2, '.', ',').'</td>
-              	<td class="text-right">'.number_format((int)$nabavnaVrednost, 2, '.', ',').'</td>
-                <td class="text-right">'.number_format((int)$vpIznos, 2, '.', ',').'</td>
-                <td class="text-right">'.number_format((int)$iznosPdv, 2, '.', ',').'</td>
+                <td class="kad-sifra">'.$sifraArtikla.'</td>
+ 				<td class="kad-artikal text-left">'.$nazivArtikla.'</td>
+				<td class="kad-kolicina text-right">'.number_format((float)$kolicina,2).'		</td>
+				<td class="kad-nabavna text-right">'.number_format((float)$nabavnaCena,2).'		</td>
+                <td class="kad-rabat text-right">'.number_format((float)$rabat,2).'			</td>
+                <td class="kad-cenapopust text-right">'.number_format((float)$cenaSaPopustom,2).'</td>
+                <td class="kad-marza text-right">'.number_format((float)$marza,2).'</td>
+                <td class="kad-cenavp text-right">'.number_format((float)$cenaVp,2).'</td>
+                <td class="kad-cenapdv text-right">'.number_format((float)$cenaPdv,2).'</td>
+              	<td class="kad-nabavnavrednost text-right">'.number_format((float)$nabavnaVrednost,2).'</td>
+                <td class="kad-vpiznos text-right">'.number_format((float)$vpIznos,2).'</td>
+                <td class="kad-iznos text-right">'.number_format((float)$iznosPdv,2).'</td>
                 <td class ="d-flex">
                     <div class="custom col-sm-6 p-1">
-                    	<div class="izmenaDetalja float-right" data-id="'.$idDetalja.'"  data-toggle="tooltip" data-placement="top" title="izmeni stavku">
+                    	<div class="izmenaDetalja float-right" data-id="'.$idDetalja.'" data-toggle="tooltip" data-placement="top" title="izmeni stavku">
                     		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
                                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
@@ -98,6 +98,86 @@ if ($akcija == 'pretraga') {
 		echo json_encode($arr);
 
 	}
+}
+
+// ------------------------------KRAJ PRETRAGA-----------------------------------------------
+
+
+
+
+
+// NOVO -----------------------------------------------------------------------------
+if ($akcija == 'novo') {
+
+
+	$sqlMax = "SELECT MAX(kad_cdikalkulacijadetail) maksimum from kalkulacijedetail";
+	$podaciMax = $conn->query($sqlMax);
+
+	//Podaci
+	$maksimumStr = 	$podaciMax->fetch_assoc()['maksimum'];
+	$maksimum =		(int)$maksimumStr + 1;
+	$magacin = 		$_COOKIE['id-magacin'];
+	$kam =			$_COOKIE['id-main'];
+	$artikal = 		$_POST['artikal'];
+	$kolicina =		$_POST['kolicina'];
+	$nabavna =		$_POST['nabavna-cena'];
+	$rabat = 		$_POST['rabat'];
+	$marza = 		$_POST['marza'];
+	$vpcena = 		$_POST['vpcena'];
+	$mpcena = 		$_POST['mpcena']; 
+
+
+	$sqlKolicina = 'SELECT * FROM artikli INNER JOIN artiklixmagacini ON artikli.art_cdiartikal = artiklixmagacini.axm_cdiartikal
+	WHERE artiklixmagacini.axm_cdiartikal = '.$artikal.' AND artiklixmagacini.axm_cdimagacin = '.$magacin;
+
+	$podaciKolicina = $conn->query($sqlKolicina);
+
+	while ($row = $podaciKolicina->fetch_assoc()) {
+	    $kolicinaPre = 	$row['axm_vlnkolicina'];
+	    $idKolicine = 	$row['axm_cdiartikalxmagacin'];
+	}
+
+	$novaKolicina = (int)$kolicina + (int)$kolicinaPre;
+
+	$updateKolicina = "UPDATE artiklixmagacini SET axm_vlnkolicina = ".$novaKolicina." WHERE axm_cdiartikalxmagacin = ".$idKolicine.";";
+	$conn->query($updateKolicina);
+
+	if ($conn->affected_rows) {
+		$sqlInsert = "
+		INSERT INTO kalkulacijedetail 
+		(kad_cdikalkulacijadetail, kad_cdikalkulacijamain,kad_cdiartikal,kad_vlnkolicina,
+		kad_vlncenanab, kad_vlnrabat, kad_vlnmarza, kad_vlncenavp, kad_vlncenamp) VALUES 
+		(".$maksimum.",".$kam.",".$artikal.",".$kolicina.",".$nabavna.",".$rabat.",".$marza.",".$vpcena.",".$mpcena.")";
+
+		$conn->query($sqlInsert);
+
+		if ($conn->affected_rows) {
+
+			echo 'ok';
+			
+		}
+	}
+	else{
+
+		echo "jok";
+	}
+
+
+
+}
+
+
+
+if ($akcija == 'izmena') {
+
+
+print_r($_POST);
+
+
+
+
+
+
 }
 
 ?>

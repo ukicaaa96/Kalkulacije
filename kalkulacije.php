@@ -50,7 +50,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
         }
 
         .test{
-            height: 200px !important;
+            height: 350px !important;
             overflow: scroll !important;
         }
 
@@ -382,22 +382,19 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                         }
                         else{
 
-                          
                             $('#kalkulacija-detail').html(json['html']);
                             $('[data-toggle="tooltip"]').tooltip()
                         }
 
                     });
-
     })
 
 
-//***Dodavanje stavke ------------------------------------------------------------------------------------------
+//*** Dodavanje stavke -----------------------------START-------------------------------------------------------------
 
             $('#novo-stavka').on('click', function(e){
                 $('#kalkulacijeModal').load('./modals/stavke_modal.php',{'akcija':'novo'},function(){
                     $('#kalkulacijeModal').modal('show')
-
 
                     $('#modal-artikli').select2({
                         theme:'bootstrap'
@@ -407,9 +404,13 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                     $('#modal-grupe').select2({
                         theme:'bootstrap'
                     });
+                })
+            })
 
 
-                $('#modal-artikli').on('change keyup', function(){
+//*** Na promenu artikla ---------------------------------------------------------------------------------------
+
+                $('body').on('change keyup','#modal-artikli', function(){
                         
                     var idArt = $(this).val()
                     var idMag = $.cookie('id-magacin')
@@ -429,62 +430,145 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                             $('#porez-input').val(json['porez'])
                             
                         });
+                });
 
-                    $('#modal-nabavna').on('change keyup', function(e){
+
+//*** Na promenu nabavne---------------------------------------------------------------------------------------------
+
+                    $('body').on('change keyup','#modal-nabavna', function(e){
 
                         var nabavnaCena = parseInt($(this).val())
                         var porez = parseInt($('#porez-input').val())
+                        var kolicina = parseInt($('#modal-kolicina').val())
+
+                        var rabat = parseInt($('#modal-rabat').val())/100
+                        if(isNaN(rabat)){
+                            rabat = 0
+                        }
+
+                        
                         
                         var mpCena = (nabavnaCena*(porez/100)) + nabavnaCena
+                        var cenaPopust = nabavnaCena - (nabavnaCena * rabat)
+                        var nabavnaVrednost = cenaPopust * kolicina
+
                         if (mpCena == NaN || mpCena <0 || isNaN(mpCena)) {
 
                             $('#modal-mpcena').val(0)
                         }
                         else{
 
-                        $('#modal-mpcena').val(mpCena)
+                            $('#modal-mpcena').val(mpCena.toFixed(2))
+                        
+                        }
+
+                        if (cenaPopust == NaN || cenaPopust <0 || isNaN(cenaPopust)) {
+
+                            $('#modal-cena-popust').val(0)
+                        }
+                        else{
+
+                            $('#modal-cena-popust').val(cenaPopust.toFixed(2))
+                        
+                        }
+
+
+                        if (nabavnaVrednost == NaN || nabavnaVrednost <0 || isNaN(nabavnaVrednost)) {
+
+                            $('#modal-nabavna-vrednost').val(0)
+                        }
+                        else{
+
+                            $('#modal-nabavna-vrednost').val(nabavnaVrednost.toFixed(2))
                         
                         }
                     })
 
-                    $('#modal-rabat').on('change keyup', function(e){
+
+
+                    $('body').on('change keyup','#modal-kolicina', function(e){
+
+                        var kolicina = parseInt($(this).val())
+                        var cenaPopust= parseInt($('#modal-cena-popust').val())
+
+
+                        if(kolicina>0){
+                            var nabavnaNovo = kolicina * cenaPopust
+                            $('#modal-nabavna-vrednost').val(nabavnaNovo)
+                        }
+                        else{
+                            if (isNaN(kolicina)) {
+                                $('#modal-nabavna-vrednost').val(0)
+                            }else{
+
+                            $('#modal-nabavna-vrednost').val(cenaPopust)
+                        }
+                    }
+
+
+
+
+
+
+
+                    })
+
+//*** Na promenu rabata-----------------------------------------------------------------------------------------------
+
+                    $('body').on('change keyup','#modal-rabat', function(e){
                         var rabat = parseInt($(this).val())/100
                         var nabavna = parseInt($('#modal-nabavna').val())
 
                         var cena = nabavna - (rabat * nabavna)
 
-                        $('#modal-cena-popust').val(cena)
-                        $('#modal-nabavna-vrednost').val(cena)
-
-
+                        if(isNaN(cena)){
+                            $('#modal-cena-popust').val(0)
+                            $('#modal-nabavna-vrednost').val(0)
+                            $('#modal-vpcena').val(0)
+                        }
+                        else{
+                            $('#modal-cena-popust').val(cena.toFixed(2))
+                            $('#modal-nabavna-vrednost').val(cena.toFixed(2))
+                            $('#modal-vpcena').val(cena.toFixed(2))
+                    }
 
                     })
 
-                })
-            })
+//*** Na promenu marze-----------------------------------------------------------------------------------------------
 
+                    $('body').on('change keyup','#modal-marza', function(e){
 
+                        var marza = parseInt($(this).val())/100
+                        var vpcena = parseInt($('#modal-nabavna-vrednost').val())
+                        var nabavna = parseInt($('#modal-nabavna').val())
+                        var porez = parseInt($('#porez-input').val())/100
 
+                        var mpcena = nabavna + nabavna*porez
 
+                        console.log(marza)
 
+                        var vpcenaFinal = vpcena + (marza*vpcena)
+                        var mpcenaFinal = mpcena + (marza*mpcena)
 
+                        if (isNaN(vpcenaFinal)) {
+                            $('#modal-vpcena').val($('#modal-cena-popust').val())
+                        }
+                        else{
+                            $('#modal-vpcena').val(vpcenaFinal.toFixed(2))
+                        }
+                        if (isNaN(mpcenaFinal)){
+                            var nab = parseInt($('#modal-nabavna').val())
+                            var porez = parseInt($('#porez-input').val())/100
+                            $('#modal-mpcena').val(nab + porez* nab)
+                        }
+                        else{
+                            $('#modal-mpcena').val("")
+                            $('#modal-mpcena').val(mpcenaFinal.toFixed(2))
+                        }
+                    })
+                
 
-
-
-
-            })
-
-
-
-
-
-
-
-
-
-
-
-
+//***--------------------------------------END----------------------------------------------------------------
 
 //***Artikli pretraga select2 ------------------------------------------------------------------------------------------
 
@@ -687,7 +771,68 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                     });
                 });
 
+//*** Dodaj novu stavku --------------------------------------------------------------
 
+             $('body').on('click','#snimi',function(e){
+
+                var str = $('#modalForm').serialize();
+                
+                $.ajax({
+                    url: "./ajax/kalkulacije_detail.php",
+                    method: "POST",
+                    data: str
+                    }).success(function(response) {
+
+                        console.log(response)
+                    })
+                })
+
+
+            $('body').on('click','.izmenaDetalja', function(e){
+
+                   
+                     var main = $(this).parent().parent().parent()
+
+                     var idStavke =         $(this).attr("data-id");
+                     var sifra =            main.find('.kad-sifra').html()
+                     var kolicina =         main.find('.kad-kolicina').html()
+                     var nabavna =          main.find('.kad-nabavna').html()
+                     var rabat =            main.find('.kad-rabat').html()
+                     var cenaPopust =       main.find('.kad-cenapopust').html()
+                     var marza =            main.find('.kad-marza').html()
+                     var cenaVp =           main.find('.kad-cenavp').html()
+                     var cenaPdv =          main.find('.kad-cenapdv').html()
+                     var nabavnaVrednost =  main.find('.kad-vpiznos').html()
+                     var iznos =            main.find('.kad-iznos').html()
+
+                     var str = {
+                        'akcija':'izmena', 
+                        'id': idStavke, 
+                        'sifra':sifra, 
+                        'kolicina':kolicina, 
+                        'nabavna':nabavna, 
+                        'rabat':rabat,
+                        'cenaPopust':cenaPopust,
+                        'marza': marza,
+                        'cenaVp':cenaVp,
+                        'cenaPdv':cenaPdv,
+                        'nabavnaVrednost': nabavnaVrednost,
+                        'iznos': iznos
+                    }
+
+                    console.log(str);
+
+                    $('#kalkulacijeModal').load('./modals/stavke_modal.php',str,function(){
+                        $('#kalkulacijeModal').modal('show')
+
+                        $('#modal-grupe').select2({
+                            theme : 'bootstrap'
+                        })
+                        $('#modal-artikli').select2({
+                            theme : 'bootstrap'
+                        })
+                       })
+            })
          
         });
     </script>

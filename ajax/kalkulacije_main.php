@@ -77,8 +77,6 @@ if($akcija == 'pretraga'){
 	$sNabavne = 	0;
 	$sProdajne = 	0;
 
-	$sNabavne = 	0;
-	$sProdajne = 	0;
 
 
 	if($_POST['komanda'] == '0'){
@@ -124,8 +122,8 @@ if($akcija == 'pretraga'){
 //----------------------------------VRACANJE NABAVNE-----------------------------------------------------
 			$sql =
 			"SELECT *
-			FROM kalkulacijemain
-			INNER JOIN kalkulacijedetail ON kalkulacijemain.kam_cdikalkulacijamain = kalkulacijedetail.kad_cdikalkulacijamain
+			FROM kalkulacijedetail
+			left JOIN kalkulacijemain ON kalkulacijemain.kam_cdikalkulacijamain = kalkulacijedetail.kad_cdikalkulacijamain
 			WHERE kalkulacijedetail.kad_cdikalkulacijamain = ".$row['kam_cdikalkulacijamain'];
 
 			//echo $sql;
@@ -133,10 +131,15 @@ if($akcija == 'pretraga'){
 			if($nabavneCene->num_rows > 0){
 				$sumaNabavne = 0;
 				while ($red = $nabavneCene->fetch_assoc()) {
-				    $cena = (int)$red['kad_vlncenanab'];
-				    $sumaNabavne += $cena;
+				    $nab = (int)$red['kad_vlncenanab'];
+				    $rabat = (int)$red['kad_vlnrabat'] / 100;
 
-				    $sNabavne += $cena;
+				    $cena = $nab - ($nab * $rabat);
+
+
+				    $sumaNabavne += $cena * (int)$red['kad_vlnkolicina'];
+
+				    $sNabavne += $cena * (int)$red['kad_vlnkolicina'];
 				}
 			}
 
@@ -147,7 +150,7 @@ if($akcija == 'pretraga'){
 
 //---------------------------------------VRACANJE SA PDV-OM--------------------------------
 			$sql = 
-			"SELECT pos_vlniznos, kad_vlncenavp
+			"SELECT pos_vlniznos, kad_vlncenavp, kad_vlnkolicina
 			FROM kalkulacijedetail
 			inner join artikli
 			on artikli.art_cdiartikal = kalkulacijedetail.kad_cdiartikal
@@ -169,9 +172,9 @@ if($akcija == 'pretraga'){
 					$porez = (int)$red['pos_vlniznos']/100;
 
 					$cenaSaPdv = $cena * $porez + $cena;
-					$sumaUkupno += $cenaSaPdv;
+					$sumaUkupno += $cenaSaPdv * (int)$red['kad_vlnkolicina'];
 
-					$sProdajne += $cenaSaPdv;
+					$sProdajne += $cenaSaPdv * (int)$red['kad_vlnkolicina'];
 				}
 
 			}
@@ -201,8 +204,8 @@ if($akcija == 'pretraga'){
                                     <td class ='datum-valute' value='".$dat2."'>".$dat2."</td>
                                     <td>".$row['kam_dssfaktura']."</td>
                                     <td>".$nazivMagacin."</td>
-                                    <td class='nabavna-vrednost text-right'>".number_format($sumaNabavne).".00</td>
-                                    <td class='prodajna-vrednost text-right'>".number_format($sumaUkupno).".00</td>
+                                    <td class='nabavna-vrednost text-right'>".number_format((float)$sumaNabavne,2)."</td>
+                                    <td class='prodajna-vrednost text-right'>".number_format((float)$sumaUkupno,2)."</td>
 
                                   
                                 
@@ -252,8 +255,8 @@ if($akcija == 'pretraga'){
 
 	$arr = [
 	'html' => 			$html,
-	'sumaNabavne' => 	number_format($sNabavne).".00",
-	'sumaProdajne'=> 	number_format($sProdajne).".00"
+	'sumaNabavne' => 	number_format((float)$sNabavne,2),
+	'sumaProdajne'=> 	number_format((float)$sProdajne,2)
 	];
 
 	echo json_encode($arr);

@@ -120,12 +120,14 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
             <label for="usr">Artikli</label>
             <div class="d-flex">
             <div class="col-sm-11 pr-2">
-               <select id='modal-artikli' name='artikal'>
+               <select class="selektovan-artikal" id='modal-artikli' name='artikal'>
                         <?php
                           while ($row = $podaciArtikli->fetch_assoc()) {
                           if ($row['art_cdiartikal'] == $idArtikla) {
+                            $_COOKIE['id-artikal-modal'] = $idArtikla;
                           ?>
-                          <option selected value=<?=$row['art_cdiartikal']?>><?=$row['art_dssnaziv']?></option>
+                          <option> selected value=<?=$row['art_cdiartikal']?>><?=$row['art_dssnaziv']?></option>
+
                           <?php
                           }
                           else{   
@@ -380,6 +382,7 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
         ?>
           <input type="hidden" name="id-artikla" value="<?= $idArtikla ?>" >
           <input id='ps' type="hidden" name="porez" value="<?= $poreskaStopa ?>" >
+          <input id='stavka-detail' type="hidden" name="id-stavka" value="<?= $idStavke ?>" >
         <?php
         }
         ?>
@@ -401,9 +404,39 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
 <script>
   
   $( document ).ready(function() {
+//Ucitavanje
+    var poreska = $('#ps').val();
+    $('#porez-input').val(poreska);
 
-      var porez = $('#ps').val()
-      $('#porez').val(porez)
+
+//Provera sifre artikla ---------------------------------------------------------------------
+    $("#modal-sifra").focusout(function(){
+
+        var sifraArtikla = $(this).val()
+        var str = {sifra : sifraArtikla}
+        $.ajax({
+            url: "./ajax/provera_sifre_artikla.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+
+                var json = JSON.parse(response)
+                
+                if(json['poruka'] == 'ok'){
+
+                  console.log("str");
+                }
+                else{
+                  console.log('nstr');
+                }
+
+        })
+    });
+
+
+
+
+
 
   })
 </script>

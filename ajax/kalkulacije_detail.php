@@ -103,9 +103,6 @@ if ($akcija == 'pretraga') {
 // ------------------------------KRAJ PRETRAGA-----------------------------------------------
 
 
-
-
-
 // NOVO -----------------------------------------------------------------------------
 if ($akcija == 'novo') {
 
@@ -120,11 +117,11 @@ if ($akcija == 'novo') {
 	$kam =			$_COOKIE['id-main'];
 	$artikal = 		$_POST['artikal'];
 	$kolicina =		$_POST['kolicina'];
-	$nabavna =		$_POST['nabavna-cena'];
+	$nabavna =		$_POST['nabavna'];
 	$rabat = 		$_POST['rabat'];
 	$marza = 		$_POST['marza'];
-	$vpcena = 		$_POST['vpcena'];
-	$mpcena = 		$_POST['mpcena']; 
+	$vpcena = 		$_POST['modal-vpcena'];
+	$mpcena = 		$_POST['modal-mpcena']; 
 
 
 	$sqlKolicina = 'SELECT * FROM artikli INNER JOIN artiklixmagacini ON artikli.art_cdiartikal = artiklixmagacini.axm_cdiartikal
@@ -162,22 +159,68 @@ if ($akcija == 'novo') {
 		echo "jok";
 	}
 
-
-
 }
 
 
 
 if ($akcija == 'izmena') {
 
+	$sifra = 			$_POST['sifra'];
+    $grupa = 			$_POST['grupe'];
+    $artikalId = 			$_POST['artikal'];
+    $kolicina = 		$_POST['kolicina'];
+    $lager =			$_POST['lager'];
+    $nabavna = 			$_POST['nabavna'];
+    $rabat = 			$_POST['rabat'];
+    $cenaPopust = 		$_POST['cena-popust'];
+    $nabavnaVrednost = 	$_POST['nabavna-vrednost'];
+    $marza = 			$_POST['marza'];
+    $vpCena = 			$_POST['modal-vpcena'];
+    $mpCena = 			$_POST['modal-mpcena'];
+    $porez = 			$_POST['porez'];
+    $idStavke = 		$_POST['id-stavka'];
 
-print_r($_POST);
+    $sqlUpdate = "
+    UPDATE kalkulacijedetail
+   	SET kad_cdiartikal = ".$artikalId.",
+   	kad_vlnkolicina = ".$kolicina.",
+   	kad_vlncenanab = ".$nabavna.",
+   	kad_vlnrabat = ".$rabat.",
+   	kad_vlnmarza = ".$marza.",
+   	kad_vlncenavp = ".$vpCena.",
+   	kad_vlncenamp = ".$mpCena."
+   	WHERE kad_cdikalkulacijadetail = ".$idStavke."
+    ";
+
+   	$conn->query($sqlUpdate);
+
+   	if($conn->affected_rows){
+   		echo 'ok';
+   	}
+   	else {
+   		echo 'jok';
+   	}
+
+}
 
 
+if($akcija == 'brisanje'){
 
+	$idStavke = $_POST['id'];
 
+	$sqlDelete = "DELETE FROM kalkulacijedetail WHERE kad_cdikalkulacijadetail = ". $idStavke;
 
+	$conn->query($sqlDelete);
 
+	if ($conn->affected_rows) {
+
+		echo 'ok';
+	}
+
+	else{
+
+		echo 'jok';
+	}
 }
 
 ?>

@@ -33,7 +33,7 @@ $dobavljaci = $conn->query($vratiDobavljace);
         <div class="d-flex">  
           <div class='col-sm-4'> 
             <label for="usr">Broj</label>
-            <input type="text" name="komanda" value="1">
+            <input type="text" name="komanda" value="1" hidden>
             <input id ='modal-okrug' value = "1" name = "broj-kalkulacije" type="number"  class="form-control">
           </div>
 

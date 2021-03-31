@@ -100,7 +100,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
 
                                 <div class = "col-sm-2">
                                     <label for="usr">Magacini/Lokacije</label>
-                                       <select name='magacin-pretraga' class="form-control">
+                                       <select id="magacin-pretraga" name='magacin-pretraga' class="form-control">
                                             <option value="-1" selected>Izaberite</option>
                                             <?php
                                                 while ($row = $podaciMagacini->fetch_assoc()) {
@@ -118,7 +118,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
 
                                 <div class = "col-sm-2">
                                     <label for="usr">Dobavljac</label>
-                                       <select name="dobavljac-pretraga" class="form-control">
+                                       <select id="dobavljac-pretraga" name="dobavljac-pretraga" class="form-control">
                                             <option value="-1" selected>Izaberite</option>
                                             <?php
                                                 while ($row = $podaciDobavljaci->fetch_assoc()) {
@@ -287,66 +287,84 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
 
     
   
-        $( document ).ready(function() {
+    $( document ).ready(function() {
 //***Ucitavanje --------------------------------------------------------------------------------------------
+        $.cookie('dobavljac-pretraga-id', '-1');
+        $.cookie('magacin-pretraga-id', '-1');
+        $.cookie('napomena-pretraga', '-1');
+        $.cookie('artikal-pretraga-id', '-1');
+        $.cookie('id-magacin', '-1');
 
-            var formatiranje = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 2 })
+        var formatiranje = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 2 })
 
-            function ucitajKalkulacije(){
+        function ucitajKalkulacije(idMain = -1){
 
-            $.cookie('C_datum-od', $("#datum-od").val())
-            $.cookie('C_datum-do', $("#datum-do").val())
+        var id = idMain;
+        console.log(id)
+        $.cookie('C_datum-od', $("#datum-od").val())
+        $.cookie('C_datum-do', $("#datum-do").val())
 
-            var str = {akcija : 'pretraga', komanda : '0'}
+        var str = {akcija : 'pretraga', komanda : '0'}
 
-            $.ajax({
-                    url: "./ajax/kalkulacije_main.php",
-                    method: "POST",
-                    data: str
-                    }).success(function(response) {
-                        //console.log(response)
-                        var json = JSON.parse(response)
-                        $('#kalkulacija-main').html(json['html']);
+        $.ajax({
+                url: "./ajax/kalkulacije_main.php",
+                method: "POST",
+                data: str
+                }).success(function(response) {
+                  
+                    var json = JSON.parse(response)
+                    $('#kalkulacija-main').html(json['html']);
 
-                        $('#n-v').text(json['sumaNabavne'])
-                        $('#t-n').text(json['sumaNabavne'])
-                        $('#p-v').text(json['sumaProdajne'])
-                        $('#t-p').text(json['sumaProdajne'])
-
-                        $('[data-toggle="tooltip"]').tooltip()
+                    $('#n-v').text(json['sumaNabavne'])
+                    $('#t-n').text(json['sumaNabavne'])
+                    $('#p-v').text(json['sumaProdajne'])
+                    $('#t-p').text(json['sumaProdajne'])
+                    $('[data-toggle="tooltip"]').tooltip()
+                    
+                    $( ".main" ).each(function() {
+                    if($(this).attr("id") == id){
+        
+                        $(this).addClass('selektovan');
+                    }
+                    else{
+                        $(this).removeClass("selektovan")
+                    }
+                    
                     });
-                }
+                });
+            }
+          
+            ucitajKalkulacije()
 
-                ucitajKalkulacije()
 
 //***Racunanje vrednosti ------------------------------------------------------------------------------------------
 
-            $('.datum').datepicker({
-              format: 'dd.mm.yyyy'
-            });
+    $('.datum').datepicker({
+      format: 'dd.mm.yyyy'
+    });
 
 //***Dodavanje kalkulacije ------------------------------------------------------------------------------------------
 
-            $('#novo-kalkulacija').on('click', function(e){
-                $('#kalkulacijeModal').load('./modals/kalkulacije_modal.php',{'akcija':'novo'},function(){
-                    $('.modal-datum').datepicker({
-                      format: 'dd.mm.yyyy'
-                    });
-                    $('#modal-dobavljac').select2({
-                        theme:'bootstrap'
-                    });
-                    $('#modal-lokacija').select2({
-                        theme:'bootstrap'
-                    });
-                    $('#kalkulacijeModal').modal('show')
-                })
-            })
+    $('#novo-kalkulacija').on('click', function(e){
+        $('#kalkulacijeModal').load('./modals/kalkulacije_modal.php',{'akcija':'novo'},function(){
+            $('.modal-datum').datepicker({
+              format: 'dd.mm.yyyy'
+            });
+            $('#modal-dobavljac').select2({
+                theme:'bootstrap'
+            });
+            $('#modal-lokacija').select2({
+                theme:'bootstrap'
+            });
+            $('#kalkulacijeModal').modal('show')
+        })
+    })
 
 //***Vracanje stavki---------------------------------------------------------------------------------------------------
 
     $('body').on('click','.main',function(e){
 
-       
+
         var idKam = $(this).attr("id");
         var idMag = $(this).find(".izmenaKalkulacije").attr('data-id-magacin');
 
@@ -354,25 +372,438 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
         $.cookie("id-magacin", idMag)
 
         var str = {akcija:'pretraga', id : idKam}
-     
+
 
         $( ".main" ).each(function() {
             if($(this).attr("id") == idKam){
+
                 $(this).addClass('selektovan');
             }
             else{
+
                 $(this).removeClass("selektovan")
             }
-
         });
-
          $.ajax({
-                    url: "./ajax/kalkulacije_detail.php",
+            url: "./ajax/kalkulacije_detail.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+             
+
+                var json = JSON.parse(response)
+                if(json['poruka'] == "jok"){
+
+                    $('#kalkulacija-detail').html("");
+                    $('[data-toggle="tooltip"]').tooltip()
+
+                }
+                else{
+
+                    $('#kalkulacija-detail').html(json['html']);
+                    $('[data-toggle="tooltip"]').tooltip()
+                }
+            });
+        })
+
+
+    //*** Dodavanje stavke -----------------------------START-------------------------------------------------------------
+
+    $('#novo-stavka').on('click', function(e){
+        $('#kalkulacijeModal').load('./modals/stavke_modal.php',{'akcija':'novo'},function(){
+            $('#kalkulacijeModal').modal('show')
+
+            $('#modal-artikli').select2({
+                theme:'bootstrap'
+            });
+
+
+            $('#modal-grupe').select2({
+                theme:'bootstrap'
+            });
+        })
+    })
+
+
+//*** Na promenu artikla ---------------------------------------------------------------------------------------
+
+    $('body').on('change keyup','#modal-artikli', function(){
+        
+        var idArt = $(this).val()
+        var idMag = $.cookie('id-magacin')
+
+        var str = {akcija:"popuni", idArtikla : idArt, idMagacina: idMag}
+        $.ajax({
+            
+            url: "./ajax/magacini_artikli.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+               
+                var json = JSON.parse(response)
+                console.log(json);
+                $('#modal-lager').val(json['lager'])
+                $('#modal-sifra').val(json['sifra'])
+                $('#porez-input').val(json['porez'])
+                
+            });
+    });
+
+
+//*** Na promenu nabavne---------------------------------------------------------------------------------------------
+
+    $('body').on('change keyup','#modal-nabavna', function(e){
+
+        var nabavnaCena = parseInt($(this).val())
+        var porez = parseInt($('#porez-input').val())
+        var kolicina = parseInt($('#modal-kolicina').val())
+
+        var rabat = parseInt($('#modal-rabat').val())/100
+        if(isNaN(rabat)){
+            rabat = 0
+        }
+
+        
+        
+        var mpCena = (nabavnaCena*(porez/100)) + nabavnaCena
+        var cenaPopust = nabavnaCena - (nabavnaCena * rabat)
+        var nabavnaVrednost = cenaPopust * kolicina
+
+        if (mpCena == NaN || mpCena <0 || isNaN(mpCena)) {
+
+            $('#modal-mpcena').val(0)
+        }
+        else{
+
+            $('#modal-mpcena').val(mpCena)
+        
+        }
+
+        if (cenaPopust == NaN || cenaPopust <0 || isNaN(cenaPopust)) {
+
+            $('#modal-cena-popust').val(0)
+        }
+        else{
+
+            $('#modal-cena-popust').val(cenaPopust)
+        
+        }
+
+
+        if (nabavnaVrednost == NaN || nabavnaVrednost <0 || isNaN(nabavnaVrednost)) {
+
+            $('#modal-nabavna-vrednost').val(0)
+        }
+        else{
+
+            $('#modal-nabavna-vrednost').val(nabavnaVrednost)
+        
+        }
+    })
+
+
+
+    $('body').on('change keyup','#modal-kolicina', function(e){
+
+        var kolicina = parseInt($(this).val())
+        var cenaPopust= parseInt($('#modal-cena-popust').val())
+
+
+        if(kolicina>0){
+            var nabavnaNovo = kolicina * cenaPopust
+            $('#modal-nabavna-vrednost').val(nabavnaNovo)
+        }
+        else{
+            if (isNaN(kolicina)) {
+                $('#modal-nabavna-vrednost').val(0)
+            }else{
+
+            $('#modal-nabavna-vrednost').val(cenaPopust)
+            }
+        }
+    })
+
+//*** Na promenu rabata-----------------------------------------------------------------------------------------------
+
+    $('body').on('change keyup','#modal-rabat', function(e){
+        var rabat = parseInt($(this).val())/100
+        var nabavna = parseInt($('#modal-nabavna').val())
+
+        var cena = nabavna - (rabat * nabavna)
+
+        if(isNaN(cena)){
+            $('#modal-cena-popust').val(0)
+            $('#modal-nabavna-vrednost').val(0)
+            $('#modal-vpcena').val(0)
+        }
+        else{
+            $('#modal-cena-popust').val(cena.toFixed(2))
+            $('#modal-nabavna-vrednost').val(cena.toFixed(2))
+            $('#modal-vpcena').val(cena.toFixed(2))
+    }
+
+    })
+
+//*** Na promenu marze-----------------------------------------------------------------------------------------------
+
+    $('body').on('change keyup','#modal-marza', function(e){
+
+        var marza = parseInt($(this).val())/100
+        var vpcena = parseInt($('#modal-nabavna-vrednost').val())
+        var nabavna = parseInt($('#modal-nabavna').val())
+        var porez = parseInt($('#porez-input').val())/100
+
+        var mpcena = nabavna + nabavna*porez
+
+        console.log(marza)
+
+        var vpcenaFinal = vpcena + (marza*vpcena)
+        var mpcenaFinal = mpcena + (marza*mpcena)
+
+        if (isNaN(vpcenaFinal)) {
+            $('#modal-vpcena').val($('#modal-cena-popust').val())
+        }
+        else{
+            $('#modal-vpcena').val(vpcenaFinal.toFixed(2))
+        }
+        if (isNaN(mpcenaFinal)){
+            var nab = parseInt($('#modal-nabavna').val())
+            var porez = parseInt($('#porez-input').val())/100
+            $('#modal-mpcena').val(nab + porez* nab)
+        }
+        else{
+            $('#modal-mpcena').val("")
+            $('#modal-mpcena').val(mpcenaFinal.toFixed(2))
+        }
+    })
+                
+
+//***--------------------------------------END----------------------------------------------------------------
+
+//***Artikli pretraga select2 ------------------------------------------------------------------------------------------
+
+    $('#artikli-pretraga').select2({
+        theme: 'bootstrap',
+        language: {
+        inputTooShort: function(args) {
+
+            total = args.minimum-args.input.length
+            if(total == 3){
+            return "Unesite minimum 3 karaktera" ;
+              }
+              if(total == 2){
+                return "Unesite jos "+ total + " karaktera" ;
+              }
+              if(total ==1){
+                return "Unesite jos "+ total + " karakter" ;
+              }
+        },
+
+        noResults: function() {
+            return "Ni jedan artikal nije pronadjen";
+        },
+
+        searching: function() {
+            return "Pretraga je u toku...";
+        },
+
+
+      },
+      placeholder: 'Artikli',
+      minimumInputLength: 3,
+      allowClear: true,
+      ajax: {
+        url: `ajax/vrati_artikle.php`,
+        dataType: 'json',
+        type: 'post',
+        delay: 100,
+        processResults: function (data) {
+          //console.log(data);
+          return {
+            results: data.res
+          };
+        },
+        cache: true
+      }
+    });
+    $('#artikli-pretraga').css('font-family','Times New Roman').css('font-weight','bold').css('visibility','hidden');
+
+//***PRETRAGA ------------------------------------------------------------------------------------------
+
+    $("#pretraga").on("click",function(e){
+        $('#kalkulacija-detail').html("")
+        e.preventDefault()
+        $.cookie('C_datum-od', $("#datum-od").val())
+        $.cookie('C_datum-do', $("#datum-do").val())
+        var str = $("#formaPretraga").serialize()
+    
+        $.ajax({
+            url: "./ajax/kalkulacije_main.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+                if(response == ""){
+                    $('#kalkulacija-main').html("");
+
+                    $('#n-v').text("")
+                    $('#t-n').text("")
+                    $('#p-v').text("")
+                    $('#t-p').text("")
+                }
+                else{
+
+                    var json = JSON.parse(response)
+                    $('#kalkulacija-main').html(json['html']);
+
+                    $('#n-v').text(json['sumaNabavne'])
+                    $('#t-n').text(json['sumaNabavne'])
+                    $('#p-v').text(json['sumaProdajne'])
+                    $('#t-p').text(json['sumaProdajne'])
+
+                    $('[data-toggle="tooltip"]').tooltip()
+                }
+            });
+        
+    })
+
+//***IZMENA KAM------------------------------------------------------------------------------------------------
+
+    $('body').on('click','.izmenaKalkulacije', function(e){
+        var idKalkulacije = $(this).attr("data-id-kalkulacija");
+        var idMagacina = $(this).attr("data-id-magacin");
+        var datumKalkulacije = $('#'+idKalkulacije+' .datum-kalkulacije').html()
+        var datumValute = $('#'+idKalkulacije+' .datum-valute').html()
+
+        $('#kalkulacijeModal').load('./modals/kalkulacije_modal.php',{'akcija':'izmena' , 'idKalkulacije' : idKalkulacije,
+        'idMagacina':idMagacina, 'datumKalkulacije' : datumKalkulacije, 'datumValute' : datumValute},function(){
+            $('#kalkulacijeModal').modal('show')
+            $('#modal-lokacija').select2({
+                theme:'bootstrap'
+            });
+            $('#modal-dobavljac').select2({
+                  theme:'bootstrap'
+            })
+        })
+    })
+
+//***BRISANJE KAM------------------------------------------------------------------------------------------------
+
+    $('body').on('click','.brisanjeKalkulacije', function(e){
+        
+        var idKalkulacije = $(this).attr("data-id-kalkulacija");
+
+        bootbox.confirm({
+                message: "Da li ste sigurni da zelite da izbrisete kalkulaciju?",
+                buttons: {
+                    confirm: {
+                        label: 'Da',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Ne',
+                        className: 'btn-danger'
+                    }
+                },
+
+                callback: function (result) {
+                    
+                if(result){
+
+                    var str = {
+                    akcija: 'brisanje',
+                    id: idKalkulacije 
+                }
+
+                //console.log(str)
+                $.ajax({
+                    url: "./ajax/kalkulacije_main.php",
                     method: "POST",
                     data: str
                     }).success(function(response) {
-                     
+                        if(response=='ok'){
+                            //console.log(response)
+                            ucitajKalkulacije()
+                            $('[data-toggle="tooltip"]').tooltip()                                       
+                        }      
+                    });
+                }
+            }
+        });
+    })
 
+
+//***MODAL KAM SACUVAJ  -------------------------------------------------------------------
+
+    $('body').on('click','#sacuvaj',function(e){
+
+        e.preventDefault();
+        var str = $('#modalForm').serialize();
+    
+        $.ajax({
+            url: "./ajax/kalkulacije_main.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+                var json = JSON.parse(response)
+                var akcija = json['akcija'];
+
+                // AKO JE IZMENA ---------------------------
+
+                if(akcija == "izmena"){
+                    if(json['prouka'] == 'jok'){
+                        alert("Nije uspelo!")
+                    } else {
+                        var akcija = json['akcija'];
+                        alert('izmenio')
+                        ucitajKalkulacije()
+
+                        $('#kalkulacijeModal').modal('hide');
+                        $('[data-toggle="tooltip"]').tooltip()
+                    } 
+                }
+
+                // AKO JE NOVO --------------------------------
+
+                if(akcija == "novo"){
+                    if(json['prouka'] == 'jok'){
+                        alert("Nije uspela izmena!")
+                    } else {
+                        var akcija = json['akcija'];
+                        alert('dodao novo')
+                        ucitajKalkulacije()
+
+                        $('#kalkulacijeModal').modal('hide');
+                        $('[data-toggle="tooltip"]').tooltip()
+                    } 
+                }
+
+            });
+        });
+
+//*** DODAVANJE STAVKE --------------------------------------------------------------
+
+     $('body').on('click','#snimi',function(e){
+
+        var str = $('#modalForm').serialize();
+        
+        $.ajax({
+            url: "./ajax/kalkulacije_detail.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+
+                console.log(response)
+
+                if(response == 'ok'){
+                     var idKam = $.cookie('id-main')
+                     var str = {akcija:'pretraga', id : idKam}
+
+                     $.ajax({
+                        url: "./ajax/kalkulacije_detail.php",
+                        method: "POST",
+                        data: str
+                        }).success(function(response) {
+             
                         var json = JSON.parse(response)
                         if(json['poruka'] == "jok"){
 
@@ -381,459 +812,184 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
 
                         }
                         else{
-
+                  
+                            ucitajKalkulacije(idKam)
                             $('#kalkulacija-detail').html(json['html']);
                             $('[data-toggle="tooltip"]').tooltip()
+                            $('#kalkulacijeModal').modal('hide');
+                    
                         }
-
                     });
-    })
-
-
-//*** Dodavanje stavke -----------------------------START-------------------------------------------------------------
-
-            $('#novo-stavka').on('click', function(e){
-                $('#kalkulacijeModal').load('./modals/stavke_modal.php',{'akcija':'novo'},function(){
-                    $('#kalkulacijeModal').modal('show')
-
-                    $('#modal-artikli').select2({
-                        theme:'bootstrap'
-                    });
-
-
-                    $('#modal-grupe').select2({
-                        theme:'bootstrap'
-                    });
-                })
-            })
-
-
-//*** Na promenu artikla ---------------------------------------------------------------------------------------
-
-                $('body').on('change keyup','#modal-artikli', function(){
-                        
-                    var idArt = $(this).val()
-                    var idMag = $.cookie('id-magacin')
-
-                    var str = {akcija:"popuni", idArtikla : idArt, idMagacina: idMag}
-                    $.ajax({
-                        
-                        url: "./ajax/magacini_artikli.php",
-                        method: "POST",
-                        data: str
-                        }).success(function(response) {
-                           
-                            var json = JSON.parse(response)
-
-                            $('#modal-lager').val(json['lager'])
-                            $('#modal-sifra').val(json['sifra'])
-                            $('#porez-input').val(json['porez'])
-                            
-                        });
-                });
-
-
-//*** Na promenu nabavne---------------------------------------------------------------------------------------------
-
-                    $('body').on('change keyup','#modal-nabavna', function(e){
-
-                        var nabavnaCena = parseInt($(this).val())
-                        var porez = parseInt($('#porez-input').val())
-                        var kolicina = parseInt($('#modal-kolicina').val())
-
-                        var rabat = parseInt($('#modal-rabat').val())/100
-                        if(isNaN(rabat)){
-                            rabat = 0
-                        }
-
-                        
-                        
-                        var mpCena = (nabavnaCena*(porez/100)) + nabavnaCena
-                        var cenaPopust = nabavnaCena - (nabavnaCena * rabat)
-                        var nabavnaVrednost = cenaPopust * kolicina
-
-                        if (mpCena == NaN || mpCena <0 || isNaN(mpCena)) {
-
-                            $('#modal-mpcena').val(0)
-                        }
-                        else{
-
-                            $('#modal-mpcena').val(mpCena.toFixed(2))
-                        
-                        }
-
-                        if (cenaPopust == NaN || cenaPopust <0 || isNaN(cenaPopust)) {
-
-                            $('#modal-cena-popust').val(0)
-                        }
-                        else{
-
-                            $('#modal-cena-popust').val(cenaPopust.toFixed(2))
-                        
-                        }
-
-
-                        if (nabavnaVrednost == NaN || nabavnaVrednost <0 || isNaN(nabavnaVrednost)) {
-
-                            $('#modal-nabavna-vrednost').val(0)
-                        }
-                        else{
-
-                            $('#modal-nabavna-vrednost').val(nabavnaVrednost.toFixed(2))
-                        
-                        }
-                    })
-
-
-
-                    $('body').on('change keyup','#modal-kolicina', function(e){
-
-                        var kolicina = parseInt($(this).val())
-                        var cenaPopust= parseInt($('#modal-cena-popust').val())
-
-
-                        if(kolicina>0){
-                            var nabavnaNovo = kolicina * cenaPopust
-                            $('#modal-nabavna-vrednost').val(nabavnaNovo)
-                        }
-                        else{
-                            if (isNaN(kolicina)) {
-                                $('#modal-nabavna-vrednost').val(0)
-                            }else{
-
-                            $('#modal-nabavna-vrednost').val(cenaPopust)
-                        }
-                    }
-
-
-
-
-
-
-
-                    })
-
-//*** Na promenu rabata-----------------------------------------------------------------------------------------------
-
-                    $('body').on('change keyup','#modal-rabat', function(e){
-                        var rabat = parseInt($(this).val())/100
-                        var nabavna = parseInt($('#modal-nabavna').val())
-
-                        var cena = nabavna - (rabat * nabavna)
-
-                        if(isNaN(cena)){
-                            $('#modal-cena-popust').val(0)
-                            $('#modal-nabavna-vrednost').val(0)
-                            $('#modal-vpcena').val(0)
-                        }
-                        else{
-                            $('#modal-cena-popust').val(cena.toFixed(2))
-                            $('#modal-nabavna-vrednost').val(cena.toFixed(2))
-                            $('#modal-vpcena').val(cena.toFixed(2))
-                    }
-
-                    })
-
-//*** Na promenu marze-----------------------------------------------------------------------------------------------
-
-                    $('body').on('change keyup','#modal-marza', function(e){
-
-                        var marza = parseInt($(this).val())/100
-                        var vpcena = parseInt($('#modal-nabavna-vrednost').val())
-                        var nabavna = parseInt($('#modal-nabavna').val())
-                        var porez = parseInt($('#porez-input').val())/100
-
-                        var mpcena = nabavna + nabavna*porez
-
-                        console.log(marza)
-
-                        var vpcenaFinal = vpcena + (marza*vpcena)
-                        var mpcenaFinal = mpcena + (marza*mpcena)
-
-                        if (isNaN(vpcenaFinal)) {
-                            $('#modal-vpcena').val($('#modal-cena-popust').val())
-                        }
-                        else{
-                            $('#modal-vpcena').val(vpcenaFinal.toFixed(2))
-                        }
-                        if (isNaN(mpcenaFinal)){
-                            var nab = parseInt($('#modal-nabavna').val())
-                            var porez = parseInt($('#porez-input').val())/100
-                            $('#modal-mpcena').val(nab + porez* nab)
-                        }
-                        else{
-                            $('#modal-mpcena').val("")
-                            $('#modal-mpcena').val(mpcenaFinal.toFixed(2))
-                        }
-                    })
-                
-
-//***--------------------------------------END----------------------------------------------------------------
-
-//***Artikli pretraga select2 ------------------------------------------------------------------------------------------
-
-            $('#artikli-pretraga').select2({
-                theme: 'bootstrap',
-                language: {
-                inputTooShort: function(args) {
-
-                    total = args.minimum-args.input.length
-                    if(total == 3){
-                    return "Unesite minimum 3 karaktera" ;
-                      }
-                      if(total == 2){
-                        return "Unesite jos "+ total + " karaktera" ;
-                      }
-                      if(total ==1){
-                        return "Unesite jos "+ total + " karakter" ;
-                      }
-                },
-
-                noResults: function() {
-                    return "Ni jedan artikal nije pronadjen";
-                },
-
-                searching: function() {
-                    return "Pretraga je u toku...";
-                },
-
-
-              },
-              placeholder: 'Artikli',
-              minimumInputLength: 3,
-              allowClear: true,
-              ajax: {
-                url: `ajax/vrati_artikle.php`,
-                dataType: 'json',
-                type: 'post',
-                delay: 100,
-                processResults: function (data) {
-                  //console.log(data);
-                  return {
-                    results: data.res
-                  };
-                },
-                cache: true
-              }
-            });
-            $('#artikli-pretraga').css('font-family','Times New Roman').css('font-weight','bold').css('visibility','hidden');
-
-//***PRETRAGA ------------------------------------------------------------------------------------------
-
-        $("#pretraga").on("click",function(e){
-            $('#kalkulacija-detail').html("")
-            e.preventDefault()
-            $.cookie('C_datum-od', $("#datum-od").val())
-            $.cookie('C_datum-do', $("#datum-do").val())
-            var str = $("#formaPretraga").serialize()
-        
-            $.ajax({
-                url: "./ajax/kalkulacije_main.php",
-                method: "POST",
-                data: str
-                }).success(function(response) {
-                    if(response == ""){
-                        $('#kalkulacija-main').html("");
-
-                        $('#n-v').text("")
-                        $('#t-n').text("")
-                        $('#p-v').text("")
-                        $('#t-p').text("")
-                    }
-                    else{
-
-
-                        var json = JSON.parse(response)
-                        $('#kalkulacija-main').html(json['html']);
-
-                        $('#n-v').text(json['sumaNabavne'])
-                        $('#t-n').text(json['sumaNabavne'])
-                        $('#p-v').text(json['sumaProdajne'])
-                        $('#t-p').text(json['sumaProdajne'])
-
-                        $('[data-toggle="tooltip"]').tooltip()
-                    }
-                });
-            
-        })
-
-//***Izmena kalkulacije------------------------------------------------------------------------------------------------
-
-        $('body').on('click','.izmenaKalkulacije', function(e){
-            var idKalkulacije = $(this).attr("data-id-kalkulacija");
-            var idMagacina = $(this).attr("data-id-magacin");
-            var datumKalkulacije = $('#'+idKalkulacije+' .datum-kalkulacije').html()
-            var datumValute = $('#'+idKalkulacije+' .datum-valute').html()
-
-            $('#kalkulacijeModal').load('./modals/kalkulacije_modal.php',{'akcija':'izmena' , 'idKalkulacije' : idKalkulacije,
-            'idMagacina':idMagacina, 'datumKalkulacije' : datumKalkulacije, 'datumValute' : datumValute},function(){
-                $('#kalkulacijeModal').modal('show')
-                $('#modal-lokacija').select2({
-                    theme:'bootstrap'
-                });
-                $('#modal-dobavljac').select2({
-                      theme:'bootstrap'
-                })
-            })
-        })
-
-//***Izmena kalkulacije------------------------------------------------------------------------------------------------
-
-        $('body').on('click','.brisanjeKalkulacije', function(e){
-            
-            var idKalkulacije = $(this).attr("data-id-kalkulacija");
-
-            bootbox.confirm({
-                    message: "Da li ste sigurni da zelite da izbrisete kalkulaciju?",
-                    buttons: {
-                        confirm: {
-                            label: 'Da',
-                            className: 'btn-success'
-                        },
-                        cancel: {
-                            label: 'Ne',
-                            className: 'btn-danger'
-                        }
-                    },
-
-                    callback: function (result) {
-                        
-                    if(result){
-
-                        var str = {
-                        akcija: 'brisanje',
-                        id: idKalkulacije 
-                    }
-
-                    //console.log(str)
-                    $.ajax({
-                        url: "./ajax/kalkulacije_main.php",
-                        method: "POST",
-                        data: str
-                        }).success(function(response) {
-                            if(response=='ok'){
-                                //console.log(response)
-                                ucitajKalkulacije()
-                                $('[data-toggle="tooltip"]').tooltip()                                       
-                            }      
-                        });
-                    }
                 }
-            });
+            })
         })
 
+//***IZMENA SAVKE --------------------------------------------------------------------------------------------------
 
-//***MODAL BRISI - IZMENI -------------------------------------------------------------------
+    $('body').on('click','.izmenaDetalja', function(e){
 
-            $('body').on('click','#sacuvaj',function(e){
+           
+             var main = $(this).parent().parent().parent()
 
-                e.preventDefault();
-                var str = $('#modalForm').serialize();
-            
-                $.ajax({
-                    url: "./ajax/kalkulacije_main.php",
-                    method: "POST",
-                    data: str
-                    }).success(function(response) {
-                        var json = JSON.parse(response)
-                        var akcija = json['akcija'];
+             var idStavke =         $(this).attr("data-id");
+             var sifra =            main.find('.kad-sifra').html()
+             var kolicina =         main.find('.kad-kolicina').html()
+             var nabavna =          main.find('.kad-nabavna').html()
+             var rabat =            main.find('.kad-rabat').html()
+             var cenaPopust =       main.find('.kad-cenapopust').html()
+             var marza =            main.find('.kad-marza').html()
+             var cenaVp =           main.find('.kad-cenavp').html()
+             var cenaPdv =          main.find('.kad-cenapdv').html()
+             var nabavnaVrednost =  main.find('.kad-vpiznos').html()
+             var iznos =            main.find('.kad-iznos').html()
 
-                        // AKO JE IZMENA ---------------------------
+             var str = {
+                'akcija':'izmena', 
+                'id': idStavke, 
+                'sifra':sifra, 
+                'kolicina':kolicina, 
+                'nabavna':nabavna, 
+                'rabat':rabat,
+                'cenaPopust':cenaPopust,
+                'marza': marza,
+                'cenaVp':cenaVp,
+                'cenaPdv':cenaPdv,
+                'nabavnaVrednost': nabavnaVrednost,
+                'iznos': iznos
+            }
 
-                        if(akcija == "izmena"){
-                            if(json['prouka'] == 'jok'){
-                                alert("Nije uspelo!")
-                            } else {
-                                var akcija = json['akcija'];
-                                alert('izmenio')
-                                ucitajKalkulacije()
+            console.log(str);
 
-                                $('#kalkulacijeModal').modal('hide');
-                                $('[data-toggle="tooltip"]').tooltip()
-                            } 
-                        }
+            $('#kalkulacijeModal').load('./modals/stavke_modal.php',str,function(){
+                $('#kalkulacijeModal').modal('show')
 
-                        // AKO JE NOVO --------------------------------
+                $('#modal-grupe').select2({
+                    theme : 'bootstrap'
+                })
+                $('#modal-artikli').select2({
+                    theme : 'bootstrap'
+                })
+               })
+    })
+ 
+//***BRISANJE STAVKE---------------------------------------------------------------------------------------------------------
+    $('body').on('click','.brisanjeDetalja', function(e){
 
-                        if(akcija == "novo"){
-                            if(json['prouka'] == 'jok'){
-                                alert("Nije uspela izmena!")
-                            } else {
-                                var akcija = json['akcija'];
-                                alert('dodao novo')
-                                ucitajKalkulacije()
+         var idStavke = $(this).attr("data-id");
 
-                                $('#kalkulacijeModal').modal('hide');
-                                $('[data-toggle="tooltip"]').tooltip()
-                            } 
-                        }
+          bootbox.confirm({
+            message: "Da li ste sigurni da zelite da izbrisete stavku?",
+            buttons: {
+                confirm: {
+                    label: 'Da',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Ne',
+                    className: 'btn-danger'
+                }
+            },
 
-                    });
-                });
-
-//*** Dodaj novu stavku --------------------------------------------------------------
-
-             $('body').on('click','#snimi',function(e){
-
-                var str = $('#modalForm').serialize();
+            callback: function (result) {
                 
+            if(result){
+
+                var str = {akcija: 'brisanje',id: idStavke }
+
+
                 $.ajax({
                     url: "./ajax/kalkulacije_detail.php",
                     method: "POST",
                     data: str
                     }).success(function(response) {
 
-                        console.log(response)
-                    })
-                })
+                        if(response == 'ok'){
+                            var idKam = $.cookie('id-main')
+                            var str = {akcija:'pretraga', id : idKam}
 
+                            $.ajax({
+                                url: "./ajax/kalkulacije_detail.php",
+                                method: "POST",
+                                data: str
+                                }).success(function(response) {
+             
+                                    var json = JSON.parse(response)
+                                    if(json['poruka'] == "jok"){
 
-            $('body').on('click','.izmenaDetalja', function(e){
+                                        $('#kalkulacija-detail').html("");
+                                        $('[data-toggle="tooltip"]').tooltip()
 
-                   
-                     var main = $(this).parent().parent().parent()
+                                    }
+                                    else{
+                                        
+                                        ucitajKalkulacije(idKam)
+                                        $('#kalkulacija-detail').html(json['html']);
+                                        $('[data-toggle="tooltip"]').tooltip()
+                                        $('#kalkulacijeModal').modal('hide');
 
-                     var idStavke =         $(this).attr("data-id");
-                     var sifra =            main.find('.kad-sifra').html()
-                     var kolicina =         main.find('.kad-kolicina').html()
-                     var nabavna =          main.find('.kad-nabavna').html()
-                     var rabat =            main.find('.kad-rabat').html()
-                     var cenaPopust =       main.find('.kad-cenapopust').html()
-                     var marza =            main.find('.kad-marza').html()
-                     var cenaVp =           main.find('.kad-cenavp').html()
-                     var cenaPdv =          main.find('.kad-cenapdv').html()
-                     var nabavnaVrednost =  main.find('.kad-vpiznos').html()
-                     var iznos =            main.find('.kad-iznos').html()
-
-                     var str = {
-                        'akcija':'izmena', 
-                        'id': idStavke, 
-                        'sifra':sifra, 
-                        'kolicina':kolicina, 
-                        'nabavna':nabavna, 
-                        'rabat':rabat,
-                        'cenaPopust':cenaPopust,
-                        'marza': marza,
-                        'cenaVp':cenaVp,
-                        'cenaPdv':cenaPdv,
-                        'nabavnaVrednost': nabavnaVrednost,
-                        'iznos': iznos
+                                    }
+                                })
+                            }
+                        })
                     }
-
-                    console.log(str);
-
-                    $('#kalkulacijeModal').load('./modals/stavke_modal.php',str,function(){
-                        $('#kalkulacijeModal').modal('show')
-
-                        $('#modal-grupe').select2({
-                            theme : 'bootstrap'
-                        })
-                        $('#modal-artikli').select2({
-                            theme : 'bootstrap'
-                        })
-                       })
+                }
             })
-         
+        })
+
+//***POSTAVLJANJE PARAMETRA ZA PRETRAGU
+
+    $('#magacin-pretraga').on('change keyup', function(){
+        var idMag = $(this).val()
+        $.cookie('magacin-pretraga-id', idMag)
+
+    })
+
+    $('#dobavljac-pretraga').on('change keyup', function(){
+        var idDob = $(this).val()
+        $.cookie('dobavljac-pretraga-id', idDob)
+
+    })
+
+    $('#napomena').on('change keyup', function(){
+        var nap = $(this).val()
+        $.cookie('napomena-pretraga', nap)
+
+    })
+
+    $('#artikli-pretraga').on('change keyup', function(){
+        var art = $(this).val()
+        if(art == 'null' || art==null){
+            $.cookie('artikal-pretraga-id', '-1')
+        }
+        else{
+            $.cookie('artikal-pretraga-id', art)
+        }
+
+    })
+
+//PROVERA SIFRE ARTIKLA U MODALU-----------------------------------------------------
+
+
+
+    // $("#modal-sifra").focusout(function(){
+    //     var sifraArtikla = $(this).val()
+    //     str = {sifra : sifraArtikla}
+    //     $.ajax({
+    //         url: "./ajax/provera_sifre_artikla.php",
+    //         method: "POST",
+    //         data: str
+    //         }).success(function(response) {
+
+    //             console.log(response);
+
+    //         })
+          
+
+    // });
+
+
+
+
         });
     </script>
   </body>

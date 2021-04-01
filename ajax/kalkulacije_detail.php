@@ -22,9 +22,9 @@ if ($akcija == 'pretraga') {
 		$kolicina = 		$row['kad_vlnkolicina'];
 		$nabavnaCena = 		$row['kad_vlncenanab'];
 		$rabat = 			$row['kad_vlnrabat'];
-		$cenaSaPopustom = 	(int)$nabavnaCena - ((int)$rabat / 100) * (int)$nabavnaCena;
+		$cenaSaPopustom = 	(float)$nabavnaCena - ((float)$rabat / 100) * (float)$nabavnaCena;
 		$marza =			$row['kad_vlnmarza'];
-		$cenaVp = 			((int)$marza/100)*(int)$cenaSaPopustom + (int)$cenaSaPopustom;
+		$cenaVp = 			((float)$marza/100)*(float)$cenaSaPopustom + (float)$cenaSaPopustom;
 
 //////////////PORESKA STOPA///////////////////////////////////////////////////////////
 		$poreskaId = $row['art_cdiporeskastopa'];
@@ -36,11 +36,11 @@ if ($akcija == 'pretraga') {
 		}
 //////////////////////////////////////////////////////////////////////////////////////////
 
-		$cenaPdv = 			(int)$cenaVp+ ((int)$poreskaStopa/100)*(int)$cenaVp;
+		$cenaPdv = 			(float)$cenaVp+ ((float)$poreskaStopa/100)*(float)$cenaVp;
 
-		$nabavnaVrednost = 	$cenaSaPopustom * (int)$kolicina;
-		$vpIznos = 			$cenaVp * (int)$kolicina;
-		$iznosPdv = 		$cenaPdv * (int)$kolicina;
+		$nabavnaVrednost = 	$cenaSaPopustom * (float)$kolicina;
+		$vpIznos = 			$cenaVp * (float)$kolicina;
+		$iznosPdv = 		$cenaPdv * (float)$kolicina;
 
 
 		
@@ -134,7 +134,7 @@ if ($akcija == 'novo') {
 	    $idKolicine = 	$row['axm_cdiartikalxmagacin'];
 	}
 
-	$novaKolicina = (int)$kolicina + (int)$kolicinaPre;
+	$novaKolicina = (float)$kolicina + (float)$kolicinaPre;
 
 	$updateKolicina = "UPDATE artiklixmagacini SET axm_vlnkolicina = ".$novaKolicina." WHERE axm_cdiartikalxmagacin = ".$idKolicine.";";
 	$conn->query($updateKolicina);

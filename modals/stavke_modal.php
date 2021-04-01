@@ -64,12 +64,21 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
   .hover-action:hover{
     background-color: #ffffff;
   }
-
   .dis{
     background-color: #efeff5;
   }
-</style>
+  .skriven{
+    display: none !important;
+  }
+  #add{
+    background-color: #92a8d1;
+  }
 
+  .fa{
+    color: white;
+  }
+
+</style>
 
 <!-- MODAL ------------------------------------------------------------------------------------------------------------------------- -->
 <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -81,12 +90,12 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-    <div class="modal-body">
+    <div class="modal-body p-0">
 <!--POCETAK FORME ---------------------------------------------------------------------------------------------------------- -->
     <form id='modalForm'>
       <div class='d-block'>
 <!-- RED 1 ----------------------------------------------------------------------------------------------------------- -->
-        <div class="d-flex">  
+        <div class="d-flex pt-3 pb-2">  
 
           <div class='col-sm-3'> 
             <label for="usr">Sifra</label>
@@ -165,12 +174,11 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
             </div>
             <div class="col-sm-1 pl-1">
               <div>
-              <button class="btn btn-primary my-auto h2">+</button>
+              <button id='dodaj-artikal' type="button" class="btn btn-primary my-auto h2" data-toggle="collapse" data-target="#demo">+</button>
               </div>
             </div>
           </div>
          </div>
-
           <div class='col-sm-3'> 
             <label for="usr">Kolicina</label>
             <?php
@@ -189,14 +197,51 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
         </div>
 
 <!-- RED 2 ----------------------------------------------------------------------------------------------------------- -->
+
+
+
+
+
+
+<!-- ADDD -->
+
+
+        <div id="add" class="skriven collapse d-flex pb-3">  
+          <div class='col-sm-3'> 
+            <label for="usr">Naziv</label>    
+            <input id ='naziv-artikla-add' value='' name = "naziv-artikla-add"  class="form-control">
+          </div>
+
+          <div class='col-sm-3'> 
+            <label for="usr">Grupa</label>
+            <input id ='grupa-artikla-add' value='' name = "grupa-artikla-add"  class="form-control">
+          </div>
+
+          <div class='col-sm-3'>
+            <label class='' for="usr">Poreske stope</label>        
+            <input id ='poreska-stopa-add' value = "" name = "poreska-stopa-add" class="form-control"> 
+          </div>
+
+           <div class="col-md-3 d-flex align-items-end ">  
+              <div class="form-group m-0">
+                <a class="btn btn-danger " title="Odustani" id="bu-artikal-close" ><i class="fa fa-close "></i></a>
+                <a class="btn btn-success " title="Sačuvaj artikal" id="bu-artikal-save" ><i class="fa fa-check "></i></a>
+              </div>
+            </div>
+        </div>
+
+
+
+<!-- ADDD KRAJ -->
+
+
+
+
+
+
         <div class="d-flex pt-4">  
           <div class='col-sm-3'> 
             <label for="usr">Kolicina Lagera</label>
-
-
-
-
-
             <?php
               if ($akcija == 'izmena') {
             ?>
@@ -209,21 +254,10 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
               <?php
                 }
               ?>
-
-
-
-
-
-
           </div>
 
           <div class='col-sm-3'> 
             <label for="usr">Nabavna cena</label>
-
-
-
-
-
             <?php
               if ($akcija == 'izmena') {
             ?>
@@ -236,12 +270,6 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
               <?php
                 }
               ?>
-
-
-
-
-
-
           </div>
 
           <div class='col-sm-2'>
@@ -424,7 +452,6 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
     </div>
   </div>
 
-
 <script>
   
   $( document ).ready(function() {
@@ -432,11 +459,30 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
     var poreska = $('#ps').val();
     $('#porez-input').val(poreska);
 
+    function postaviNule(bool = true){
 
+      if (bool == false) {
+        $('#modal-sifra').val(0)
+        $('#porez-input').val(0)
+      }
+
+      $('#modal-mpcena').val(0)
+      $('#modal-vpcena').val(0)
+      $('#modal-modal-marza').val(0)
+      $('#modal-nabavna-vrednost').val(0)
+      $('#modal-nabavna').val(0)
+      $('#modal-rabat').val(0)
+      $('#modal-marza').val(0)
+      $('#modal-kolicina').val(1)
+      $('#modal-lager').val(0)
+      $('#modal-cena-popust').val(0)
+
+    }
 
 
 //Provera sifre artikla ---------------------------------------------------------------------
     $("#modal-sifra").focusout(function(){
+
 
         var sifraArtikla = $(this).val()
         var str = {sifra : sifraArtikla}
@@ -449,6 +495,7 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
                 var json = JSON.parse(response)
                 console.log(json);
                 if(json['poruka'] == 'ok'){
+                  postaviNule(false)
                   $('.upis-artikla').children().remove()
                   $('.upis-artikla').replaceWith(json['artikli'])
                   $('.upis-grupe').replaceWith(json['grupe'])
@@ -472,6 +519,8 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
 
 
     $('#modal-grupe').on('change', function(){
+
+      postaviNule(false)
 
         var idGrupe = $(this).val()
 
@@ -497,6 +546,20 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
       })
 
 
+
+    $('#dodaj-artikal').on('click', function(){
+
+      var element = $('#add')
+      
+      if (element.hasClass('skriven')) {
+        element.removeClass('skriven')
+      }
+      else{
+        element.addClass('skriven')
+      }
+
+
+    })
 
 
 

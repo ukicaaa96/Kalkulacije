@@ -69,6 +69,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                 <a class="nav-item nav-link" href="http://localhost/ub_test/mesta.php">Mesta</a>
                 <a class="nav-item nav-link" href="http://localhost/ub_test/okruzi.php">Okruzi</a>
                 <a class="nav-item nav-link" href="#">Drzave</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/kalkulacije.php">KALKULACIJE</a>
             </div>
         </div>
     </nav>
@@ -297,6 +298,28 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
 
         var formatiranje = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 2 })
 
+
+         function postaviNule(bool = true){
+
+          if (bool = false) {
+            $('#modal-sifra').val("")
+            $('#porez-input').val(0)
+            $('#modal-lager').val(0)
+          }
+
+          $('#modal-mpcena').val(0)
+          $('#modal-vpcena').val(0)
+          $('#modal-nabavna-vrednost').val(0)
+          $('#modal-nabavna').val(0)
+          $('#modal-rabat').val(0)
+          $('#modal-marza').val(0)
+          $('#modal-kolicina').val(1)
+          $('#modal-cena-popust').val(0)
+
+        }
+
+
+
         function ucitajKalkulacije(idMain = -1){
 
         var id = idMain;
@@ -451,7 +474,10 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                 $('#modal-lager').val(json['lager'])
                 $('#modal-sifra').val(json['sifra'])
                 $('#porez-input').val(json['porez'])
-                
+
+                postaviNule()
+
+               
             });
     });
 
@@ -494,6 +520,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
             $('#modal-cena-popust').val(cenaPopust)
         
         }
+        
 
 
         if (nabavnaVrednost == NaN || nabavnaVrednost <0 || isNaN(nabavnaVrednost)) {
@@ -503,6 +530,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
         else{
 
             $('#modal-nabavna-vrednost').val(nabavnaVrednost)
+            $('#modal-vpcena').val(nabavnaVrednost)
         
         }
     })
@@ -524,7 +552,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                 $('#modal-nabavna-vrednost').val(0)
             }else{
 
-            $('#modal-nabavna-vrednost').val(cenaPopust)
+            $('#modal-nabavna-vrednost').val(cenaPopust.toFixed(2))
             }
         }
     })
@@ -534,6 +562,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
     $('body').on('change keyup','#modal-rabat', function(e){
         var rabat = parseInt($(this).val())/100
         var nabavna = parseInt($('#modal-nabavna').val())
+        var kolicina = parseInt($('#modal-kolicina').val())
 
         var cena = nabavna - (rabat * nabavna)
 
@@ -544,7 +573,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
         }
         else{
             $('#modal-cena-popust').val(cena.toFixed(2))
-            $('#modal-nabavna-vrednost').val(cena.toFixed(2))
+            $('#modal-nabavna-vrednost').val((cena*kolicina).toFixed(2))
             $('#modal-vpcena').val(cena.toFixed(2))
     }
 
@@ -843,14 +872,14 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
              var idStavke =         $(this).attr("data-id");
              var sifra =            main.find('.kad-sifra').html()
              var kolicina =         main.find('.kad-kolicina').html()
-             var nabavna =          main.find('.kad-nabavna').html()
+             var nabavna =          main.find('.kad-nabavna').html().replace(',','')
              var rabat =            main.find('.kad-rabat').html()
-             var cenaPopust =       main.find('.kad-cenapopust').html()
+             var cenaPopust =       main.find('.kad-cenapopust').html().replace(',','')
              var marza =            main.find('.kad-marza').html()
-             var cenaVp =           main.find('.kad-cenavp').html()
-             var cenaPdv =          main.find('.kad-cenapdv').html()
-             var nabavnaVrednost =  main.find('.kad-vpiznos').html()
-             var iznos =            main.find('.kad-iznos').html()
+             var cenaVp =           main.find('.kad-cenavp').html().replace(',','')
+             var cenaPdv =          main.find('.kad-cenapdv').html().replace(',','')
+             var nabavnaVrednost =  main.find('.kad-vpiznos').html().replace(',','')
+             var iznos =            main.find('.kad-iznos').html().replace(',','')
              var idArtikal =        $('.kad-artikal').attr('artikal-id')
 
 

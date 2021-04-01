@@ -115,8 +115,8 @@ if($akcija == 'pretraga'){
 
 				while ($red = $nabavneCene->fetch_assoc()) {
 
-				    $nab = (int)$red['kad_vlncenanab'];
-				    $rabat = (int)$red['kad_vlnrabat'] / 100;
+				    $nab = (float)$red['kad_vlncenanab'];
+				    $rabat = (float)$red['kad_vlnrabat'] / 100;
 				    $cena = $nab - ($nab * $rabat);
 					$sumaNabavne += $cena * (int)$red['kad_vlnkolicina'];
 				}
@@ -140,20 +140,22 @@ if($akcija == 'pretraga'){
 
 
 			$cenePdv = $conn->query($sql);
-			$_COOKIE['ccc'] = $cenePdv;
+			//$_COOKIE['ccc'] = $cenePdv;
 			if($cenePdv->num_rows > 0){
 
 				$sumaUkupno = 0;
 
 				while ($red = $cenePdv->fetch_assoc()) {
 
-					$cena = (int)$red['kad_vlncenavp'];
-					$porez = (int)$red['pos_vlniznos']/100;
+
+
+					$cena = (float)$red['kad_vlncenavp'];
+					$porez = (float)$red['pos_vlniznos']/100;
+
 					$cenaSaPdv = $cena * $porez + $cena;
 
 					$sumaUkupno += $cenaSaPdv * (int)$red['kad_vlnkolicina'];
 				}
-
 			}
 			else{
 				$sumaUkupno = 0;
@@ -299,7 +301,8 @@ if ($akcija=='izmena') {
 	kam_dssfaktura='".$faktura."',
 	kam_cdimagacin='".$magacin."',
 	kam_cdidobavljac='".$dobavljac."',
-	kam_datvaluta='".$datumValute."'
+	kam_datvaluta='".$datumValute."',
+	kam_dssnapomena='".$napomena."'
 	WHERE kam_cdikalkulacijamain=".$id;
 					
 

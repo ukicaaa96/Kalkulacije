@@ -46,6 +46,7 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
     while ($row = $podaciPoreska->fetch_assoc()) {
 
     $poreskaId = $row['art_cdiporeskastopa'];
+    $grupaId = $row['art_cdigrupaartikla'];
 
     }
  
@@ -103,40 +104,63 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
               ?>
           </div>
 
-          <div class='col-sm-3'> 
+          <div class='col-sm-3'>
+          <div class="upis-grupe"> 
             <label for="usr">Grupa</label>
                <select id='modal-grupe' name='grupe'>
-                    <?php
-                        while ($row = $podaciGrupe->fetch_assoc()) {
-                    ?>
-                          <option value=<?=$row['gra_cdigrupaartikla']?>><?=$row['gra_dssnaziv']?></option>
-                    <?php
-                        }
-                    ?>
+
+                <?php if($akcija == 'novo'){ ?>
+                  <option selected value="-1">Izaberite grupu</option>
+                <?php while ($row = $podaciGrupe->fetch_assoc()) { ?>
+                    <option value=<?=$row['gra_cdigrupaartikla']?>><?=$row['gra_dssnaziv']?></option>  
+                  <?php } ?>
+                <?php } ?>
+<!-- ---------------------------------------------------------------------------------------------------------------------- -->
+                <?php if ($akcija == 'izmena') { ?>
+                  <?php while ($row = $podaciGrupe->fetch_assoc()) { ?>
+                    <?php if ($row['gra_cdigrupaartikla'] == $grupaId) { ?>
+                      <option selected value=<?=$row['gra_cdigrupaartikla']?>><?=$row['gra_dssnaziv']?></option>  
+                    <?php } ?>
+                    <?php if ($row['gra_cdigrupaartikla'] != $grupaId) { ?>
+                      <option value=<?=$row['gra_cdigrupaartikla']?>><?=$row['gra_dssnaziv']?></option>  
+                    <?php } ?>
+                  <?php } ?>
+                <?php } ?>
+
                 </select>
+              </div>
           </div>
 
           <div class='col-sm-3'> 
             <label for="usr">Artikli</label>
-            <div class="d-flex">
+            <div class="d-flex upis-artikla">
             <div class="col-sm-11 pr-2">
                <select class="selektovan-artikal" id='modal-artikli' name='artikal'>
-                        <?php
-                          while ($row = $podaciArtikli->fetch_assoc()) {
-                          if ($row['art_cdiartikal'] == $idArtikla) {
-                            $_COOKIE['id-artikal-modal'] = $idArtikla;
-                          ?>
-                          <option> selected value=<?=$row['art_cdiartikal']?>><?=$row['art_dssnaziv']?></option>
+                <?php
+                if ($akcija != 'izmena') {
+                ?>
 
-                          <?php
-                          }
-                          else{   
-                          ?>
-                          <option value=<?=$row['art_cdiartikal']?>><?=$row['art_dssnaziv']?></option>
-                          <?php
-                          }
-                          }
-                        ?>
+                <option selected value="-1">Izaberi artikal</option>
+
+                <?php
+                }
+                ?>
+                    <?php
+                      while ($row = $podaciArtikli->fetch_assoc()) {
+                      if ($row['art_cdiartikal'] == $idArtikla) {
+                        $_COOKIE['id-artikal-modal'] = $idArtikla;
+                      ?>
+                      <option selected value=<?=$row['art_cdiartikal']?>><?=$row['art_dssnaziv']?></option>
+
+                      <?php
+                      }
+                      else{   
+                      ?>
+                      <option value=<?=$row['art_cdiartikal']?>><?=$row['art_dssnaziv']?></option>
+                      <?php
+                      }
+                      }
+                    ?>
                 </select>
             </div>
             <div class="col-sm-1 pl-1">
@@ -237,8 +261,6 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
               <?php
                 }
               ?>
-
-
 
 
               <span class="input-group-text rounded-right">
@@ -383,6 +405,8 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
           <input type="hidden" name="id-artikla" value="<?= $idArtikla ?>" >
           <input id='ps' type="hidden" name="porez" value="<?= $poreskaStopa ?>" >
           <input id='stavka-detail' type="hidden" name="id-stavka" value="<?= $idStavke ?>" >
+          <input id='grupa-art' type="hidden" name="grupa-art" value="<?= $idStavke ?>" >
+
         <?php
         }
         ?>
@@ -409,6 +433,8 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
     $('#porez-input').val(poreska);
 
 
+
+
 //Provera sifre artikla ---------------------------------------------------------------------
     $("#modal-sifra").focusout(function(){
 
@@ -421,10 +447,21 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
             }).success(function(response) {
 
                 var json = JSON.parse(response)
-                
+                console.log(json);
                 if(json['poruka'] == 'ok'){
+                  $('.upis-artikla').children().remove()
+                  $('.upis-artikla').replaceWith(json['artikli'])
+                  $('.upis-grupe').replaceWith(json['grupe'])
+                  $('#modal-lager').val(json['lager'])
+                  $('#porez-input').val(json['porez']);
 
-                  console.log("str");
+                  $('#modal-artikli').select2({
+                    theme:'bootstrap'
+                  })
+
+                  $('#modal-grupe').select2({
+                    theme:'bootstrap'
+                  })
                 }
                 else{
                   console.log('nstr');
@@ -432,6 +469,36 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
 
         })
     });
+
+
+    $('#modal-grupe').on('change', function(){
+
+        var idGrupe = $(this).val()
+
+        str = {'id' : idGrupe}
+        //console.log(idGrupe);
+        $.ajax({
+            url: "./ajax/artikli_po_grupi.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+
+              var json = JSON.parse(response);
+              console.log('mg' + json)
+              $('.upis-artikla').replaceWith(json['artikli'])
+              $('#modal-lager').val(0)
+              $('#porez-input').val(0)
+
+              $('#modal-artikli').select2({
+                  theme:'bootstrap'
+              })
+
+            })
+      })
+
+
+
+
 
 
 

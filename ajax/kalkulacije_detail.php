@@ -51,7 +51,7 @@ if ($akcija == 'pretraga') {
 
                 <td class="text-center">'.$i.'</td>
                 <td class="kad-sifra">'.$sifraArtikla.'</td>
- 				<td class="kad-artikal text-left">'.$nazivArtikla.'</td>
+ 				<td class="kad-artikal text-left" artikal-id="'.$artikal.'">'.$nazivArtikla.'</td>
 				<td class="kad-kolicina text-right">'.number_format((float)$kolicina,2).'		</td>
 				<td class="kad-nabavna text-right">'.number_format((float)$nabavnaCena,2).'		</td>
                 <td class="kad-rabat text-right">'.number_format((float)$rabat,2).'			</td>

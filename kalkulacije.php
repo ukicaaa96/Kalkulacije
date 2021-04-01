@@ -300,7 +300,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
         function ucitajKalkulacije(idMain = -1){
 
         var id = idMain;
-        console.log(id)
+        console.log('id '+id)
         $.cookie('C_datum-od', $("#datum-od").val())
         $.cookie('C_datum-do', $("#datum-do").val())
 
@@ -410,18 +410,24 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
     //*** Dodavanje stavke -----------------------------START-------------------------------------------------------------
 
     $('#novo-stavka').on('click', function(e){
-        $('#kalkulacijeModal').load('./modals/stavke_modal.php',{'akcija':'novo'},function(){
-            $('#kalkulacijeModal').modal('show')
 
-            $('#modal-artikli').select2({
-                theme:'bootstrap'
-            });
+        if ($.cookie('id-magacin') != '-1' && $.cookie('id-main') != '-1') {
+            $('#kalkulacijeModal').load('./modals/stavke_modal.php',{'akcija':'novo'},function(){
+                $('#kalkulacijeModal').modal('show')
+
+                $('#modal-artikli').select2({
+                    theme:'bootstrap'
+                });
 
 
-            $('#modal-grupe').select2({
-                theme:'bootstrap'
-            });
-        })
+                $('#modal-grupe').select2({
+                    theme:'bootstrap'
+                });
+            })
+    }
+    else{
+        alert('izaberite kalkulaciju')
+    }
     })
 
 
@@ -722,6 +728,7 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                     }).success(function(response) {
                         if(response=='ok'){
                             //console.log(response)
+                            $("#kalkulacija-detail").html("")
                             ucitajKalkulacije()
                             $('[data-toggle="tooltip"]').tooltip()                                       
                         }      
@@ -754,8 +761,9 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                         alert("Nije uspelo!")
                     } else {
                         var akcija = json['akcija'];
-                        alert('izmenio')
+            
                         ucitajKalkulacije()
+                        console.log('izmenio')
 
                         $('#kalkulacijeModal').modal('hide');
                         $('[data-toggle="tooltip"]').tooltip()
@@ -769,8 +777,9 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                         alert("Nije uspela izmena!")
                     } else {
                         var akcija = json['akcija'];
-                        alert('dodao novo')
+                        
                         ucitajKalkulacije()
+                        console.log('dodao novo')
 
                         $('#kalkulacijeModal').modal('hide');
                         $('[data-toggle="tooltip"]').tooltip()
@@ -842,6 +851,8 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
              var cenaPdv =          main.find('.kad-cenapdv').html()
              var nabavnaVrednost =  main.find('.kad-vpiznos').html()
              var iznos =            main.find('.kad-iznos').html()
+             var idArtikal =        $('.kad-artikal').attr('artikal-id')
+
 
              var str = {
                 'akcija':'izmena', 
@@ -855,10 +866,9 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                 'cenaVp':cenaVp,
                 'cenaPdv':cenaPdv,
                 'nabavnaVrednost': nabavnaVrednost,
-                'iznos': iznos
+                'iznos': iznos,
+                'artikal-id' : idArtikal
             }
-
-            console.log(str);
 
             $('#kalkulacijeModal').load('./modals/stavke_modal.php',str,function(){
                 $('#kalkulacijeModal').modal('show')

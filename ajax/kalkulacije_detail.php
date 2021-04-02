@@ -167,7 +167,7 @@ if ($akcija == 'izmena') {
 
 	$sifra = 			$_POST['sifra'];
     $grupa = 			$_POST['grupe'];
-    $artikalId = 			$_POST['artikal'];
+    $artikalId = 		$_POST['artikal'];
     $kolicina = 		$_POST['kolicina'];
     $lager =			$_POST['lager'];
     $nabavna = 			$_POST['nabavna'];
@@ -179,6 +179,46 @@ if ($akcija == 'izmena') {
     $mpCena = 			$_POST['modal-mpcena'];
     $porez = 			$_POST['porez'];
     $idStavke = 		$_POST['id-stavka'];
+
+    $artikalProvera = 	$_POST['provera-art'];
+    $kolicinaProvera = 	$_POST['provera-kol'];
+    $magacinId = 		$_COOKIE['id-magacin'];
+
+    if ($artikalProvera == $artikalId) {
+    	if ($kolicina != $kolicinaProvera) {
+
+    		$sqlUpdate = "UPDATE artiklixmagacini SET axm_vlnkolicina = ".$kolicina." 
+    		WHERE axm_cdimagacin = ".$magacinId." AND axm_cdiartikal=".$artikalId;
+
+    		$conn->query($sqlUpdate);
+
+    	}
+    	else{
+    		$a = 1;
+    	}
+
+    }
+    else{
+
+    	//vrati staru kolicnu artikla
+    	$sqlStaraKolicina = "SELECT * FROM artiklixmagacini WHERE axm_cdiartikal = ".$artikalProvera." AND axm_cdimagacin = ".$magacinId;
+    	$podaciStaraKolicina = $conn->query($sqlStaraKolicina);
+    	while ($row=$podaciStaraKolicina->fetch_assoc()) {
+    		$staraKolicina = $row['axm_vlnkolicina'];    
+    	}
+    	$novaKolicina = (int)$staraKolicina - (int)$kolicinaProvera;
+
+    	//izbrisi stari iz magacina
+    	$sqlUpdateStari = "UPDATE artiklixmagacini SET axm_vlnkolicina = ".$novaKolicina." 
+    	WHERE axm_cdimagacin = ".$magacinId." AND axm_cdiartikal=".$artikalProvera;
+    	$conn->query($sqlUpdateStari);
+
+    	//dodaj novi u magacin
+    	$sqlUpdateNovi = "UPDATE artiklixmagacini SET axm_vlnkolicina = ".$kolicina." 
+    	WHERE axm_cdimagacin = ".$magacinId." AND axm_cdiartikal=".$artikalId;
+    	$conn->query($sqlUpdateNovi); 
+    }
+
 
     $sqlUpdate = "
     UPDATE kalkulacijedetail
@@ -208,19 +248,47 @@ if($akcija == 'brisanje'){
 
 	$idStavke = $_POST['id'];
 
-	$sqlDelete = "DELETE FROM kalkulacijedetail WHERE kad_cdikalkulacijadetail = ". $idStavke;
+	$sql = "SELECT * FROM kalkulacijedetail WHERE kad_cdikalkulacijadetail = ". $idStavke;
 
-	$conn->query($sqlDelete);
+	$podaciStavka = $conn->query($sql);
 
-	if ($conn->affected_rows) {
+	while ($row=$podaciStavka->fetch_assoc()) {
 
-		echo 'ok';
-	}
+		$idArtikla = $row['kad_cdiartikal'];
+		$idMagacina = $_COOKIE['id-magacin'];
+		$kolicina = $row['kad_vlnkolicina'];
 
-	else{
 
-		echo 'jok';
+		//vrati trenutnu kolicinu
+		$sqlKol = "SELECT axm_vlnkolicina from artiklixmagacini 
+		WHERE axm_cdiartikal = ".$idArtikla." AND axm_cdimagacin =" . $idMagacina;
+
+		$podaciKolicina = $conn->query($sqlKol);
+
+		while ($row=$podaciKolicina->fetch_assoc()) {
+
+			$staraKolicina = $row['axm_vlnkolicina'];
+		    
+		}
+
+		$novaKolicina = (int)$staraKolicina-(int)$kolicina;
+
+		$sqlUpdate = "UPDATE artiklixmagacini SET axm_vlnkolicina =".$novaKolicina." WHERE axm_cdiartikal = ".$idArtikla." AND axm_cdimagacin = ".$idMagacina; 
+
+		$conn->query($sqlUpdate);
+
+		if ($conn->affected_rows) {
+
+			$sqlDelete = "DELETE FROM kalkulacijedetail WHERE kad_cdikalkulacijadetail = ".$idStavke;
+			$conn->query($sqlDelete);
+			echo 'ok';
+			
+		}
+	    else{
+	    	echo 'jok';
+	    }
 	}
 }
+
 
 ?>

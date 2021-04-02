@@ -31,6 +31,7 @@ $nabavna =          (float)$_POST["nabavna"];
 $nabVrednost =      (float)$_POST["nabavnaVrednost"];
 $rabat =            (float)$_POST["rabat"];   
 $sifra =            $_POST["sifra"];
+$artikalProvera =   $_POST['artikal-id'];
 
 $sqlArtikalId = "SELECT kad_cdiartikal FROM kalkulacijedetail WHERE kad_cdikalkulacijadetail = ". $idStavke;
 $podaciArtId = $conn->query($sqlArtikalId);
@@ -451,6 +452,8 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
           <input id='ps' type="hidden" name="porez" value="<?= $poreskaStopa ?>" >
           <input id='stavka-detail' type="hidden" name="id-stavka" value="<?= $idStavke ?>" >
           <input id='grupa-art' type="hidden" name="grupa-art" value="<?= $idStavke ?>" >
+          <input id='provera-art' type="hidden" name="provera-art" value="<?= $artikalProvera ?>" >
+          <input id='provera-kol' type="hidden" name="provera-kol" value="<?= $kolicina ?>" >
 
         <?php
         }

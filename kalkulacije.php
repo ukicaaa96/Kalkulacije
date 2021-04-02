@@ -323,17 +323,19 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
         function ucitajKalkulacije(idMain = -1){
 
         var id = idMain;
-        console.log('id '+id)
+        // console.log('id '+id)
         $.cookie('C_datum-od', $("#datum-od").val())
         $.cookie('C_datum-do', $("#datum-do").val())
 
-        var str = {akcija : 'pretraga', komanda : '0'}
+        var str = {akcija : 'pretraga'}
 
         $.ajax({
                 url: "./ajax/kalkulacije_main.php",
                 method: "POST",
                 data: str
                 }).success(function(response) {
+
+                    console.log(response);
                   
                     var json = JSON.parse(response)
                     $('#kalkulacija-main').html(json['html']);
@@ -759,6 +761,8 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
                             //console.log(response)
                             $("#kalkulacija-detail").html("")
                             ucitajKalkulacije()
+                            $("#pretraga").trigger('click');
+                
                             $('[data-toggle="tooltip"]').tooltip()                                       
                         }      
                     });
@@ -796,6 +800,8 @@ $podaciDobavljaci = $conn->query($sqlDobavljaci);
 
                         $('#kalkulacijeModal').modal('hide');
                         $('[data-toggle="tooltip"]').tooltip()
+
+                        $('#kalkulacija-detail').html("")
                     } 
                 }
 

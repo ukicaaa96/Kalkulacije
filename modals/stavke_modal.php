@@ -11,6 +11,12 @@ $podaciArtikli = $conn->query($sqlArtikli);
 $sqlGrupe = "SELECT * FROM grupeartikla WHERE gra_cdigrupaartikla > 0";
 $podaciGrupe = $conn->query($sqlGrupe);
 
+$sqlGrupe1 = "SELECT * FROM grupeartikla WHERE gra_cdigrupaartikla > 0";
+$podaciGrupe1 = $conn->query($sqlGrupe1);
+
+$sqlPoreske = "SELECT * FROM poreskestope WHERE pos_cdiporeskastopa > 0";
+$podaciPoreskeStope = $conn->query($sqlPoreske);
+
 if ($akcija == 'izmena') {
 
 
@@ -203,29 +209,40 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
 
 
 
-<!-- ADDD -->
+<!-- COLLAPSE -->
 
 
-        <div id="add" class="skriven collapse d-flex pb-3">  
+        <div id="add" class="skriven collapse d-flex pb-3"> 
           <div class='col-sm-3'> 
             <label for="usr">Naziv</label>    
-            <input id ='naziv-artikla-add' value='' name = "naziv-artikla-add"  class="form-control">
+            <input id ='naziv-artikla-add' name = "naziv-artikla-add"  class="form-control">
           </div>
 
           <div class='col-sm-3'> 
             <label for="usr">Grupa</label>
-            <input id ='grupa-artikla-add' value='' name = "grupa-artikla-add"  class="form-control">
+            <select id ='grupa-artikla-add' name = "grupa-artikla-add"  class="form-control">
+              <option selected value="-1">Izaberi grupu:</option>
+              <?php while($row = $podaciGrupe1->fetch_assoc()) { ?>
+                <option value="<?= $row['gra_cdigrupaartikla'] ?>"><?= $row['gra_dssnaziv']?></option>
+              <?php } ?>
+            </select>
           </div>
 
-          <div class='col-sm-3'>
-            <label class='' for="usr">Poreske stope</label>        
-            <input id ='poreska-stopa-add' value = "" name = "poreska-stopa-add" class="form-control"> 
+          <div class='col-sm-3'> 
+            <label for="usr">Poreske stope</label>
+            <select id ='poreska-stopa-add' name = "poreska-stopa-add"  class="form-control">
+              <option selected value="-1">Izaberi porez:</option>
+              <?php while($row = $podaciPoreskeStope->fetch_assoc()) { ?>
+                <option value="<?= $row['pos_cdiporeskastopa'] ?>"><?= $row['pos_dssnaziv']?></option>
+              <?php } ?>
+            </select>
           </div>
+
 
            <div class="col-md-3 d-flex align-items-end ">  
               <div class="form-group m-0">
-                <a class="btn btn-danger " title="Odustani" id="bu-artikal-close" ><i class="fa fa-close "></i></a>
-                <a class="btn btn-success " title="Sačuvaj artikal" id="bu-artikal-save" ><i class="fa fa-check "></i></a>
+                <a class="btn btn-danger " title="Odustani" id="add-close" ><i class="fa fa-close "></i></a>
+                <a class="btn btn-success " title="Sačuvaj artikal" id="add-save" ><i class="fa fa-check "></i></a>
               </div>
             </div>
         </div>
@@ -560,6 +577,35 @@ $idArtikla = $podaciArtId->fetch_assoc()['kad_cdiartikal'];
 
 
     })
+
+    $('#add-save').on('click', function(){
+
+      var naziv = $('#naziv-artikla-add').val();
+      var grupa = $('#grupa-artikla-add').val();
+      var porez = $('#poreska-stopa-add').val();
+
+      var str = {
+        'naziv-artikla-add' : naziv,
+        'grupa-artikla-add' : grupa,
+        'poreska-stopa-add' : porez
+      }
+
+       $.ajax({
+            url: "./ajax/dodaj_artikle.php",
+            method: "POST",
+            data: str
+            }).success(function(response) {
+
+              var json = JSON.parse(response);
+
+              console.log(json['poruka']);
+
+
+              $('#dodaj-artikal').trigger('click');
+
+
+            })
+      })
 
 
 

@@ -69,18 +69,12 @@ if($akcija == 'pretraga'){
 		$artikalWhere = '';
 	}
 
-	$sql =
-	"SELECT *
-	FROM kalkulacijemain
-	INNER JOIN kalkulacijedetail ON kalkulacijemain.kam_cdikalkulacijamain = kalkulacijedetail.kad_cdikalkulacijamain
-	WHERE kam_datdatum BETWEEN '".$datumOd."' AND '".$datumDo."'" . $magacinWhere . $dobavljacWhere . $napomenaWhere. $artikalWhere; 
 
-	$provera = $conn->query($sql);
 
 
 	$html = "";
-
-	if($provera->num_rows != 0){
+	$i = 1;
+	
 
 		$sqlKalkulacije = 
 		"SELECT *
@@ -89,12 +83,9 @@ if($akcija == 'pretraga'){
 
 
 		$podaci = $conn->query($sqlKalkulacije);
-		$i = 1;
-
 		if($podaci->num_rows != 0 ){
 
 		while ($row = $podaci->fetch_assoc()) {
-
 
 //Ukupna nabavna cena svih stavki za kalkulaciju-----------------------------------------------------
 
@@ -106,7 +97,6 @@ if($akcija == 'pretraga'){
 
 			$conn->query($sql);
 			
-
 			$nabavneCene = $conn->query($sql);
 
 			if($nabavneCene->num_rows > 0){
@@ -188,15 +178,10 @@ if($akcija == 'pretraga'){
 			}
 
 			else{
-				$sqlProveraArtikla = "SELECT * FROM kalkulacijemain";
+				$sqlProveraArtikla = "SELECT * FROM kalkulacijemain where " . $row['kam_cdikalkulacijamain'];
+
 			}
-
-
-
-
 	
-
-			
 			$art = $conn->query($sqlProveraArtikla);
 
 
@@ -205,6 +190,12 @@ if($akcija == 'pretraga'){
 				$a = 1;
 			}
 			else{
+
+				//while ($row = $art->fetch_assoc()) {
+
+
+				    
+				
 
 			$html .= "
       		<tr class='main' id='".$row['kam_cdikalkulacijamain']."'>
@@ -262,8 +253,8 @@ if($akcija == 'pretraga'){
 			$sNabavne+= $sumaNabavne;
 			$sProdajne+=$sumaUkupno;
 			$i ++;
+			}
 		}
-	}
 	
 	}
 
@@ -274,7 +265,7 @@ if($akcija == 'pretraga'){
 	];
 
 	echo json_encode($arr);
-	}
+	
 }
 
 
@@ -325,33 +316,93 @@ if ($akcija=='izmena') {
 
 }
 
-//BRISANJE ------------------------------------------------------------------------------------------
-if ($akcija=='brisanje') {
+//BRISANJE  STARO------------------------------------------------------------------------------------------
+// if ($akcija=='brisanje') {
 
-	$id = $_POST['id'];
+// 	$id = $_POST['id'];
 
-	$sqlDelete = "DELETE FROM kalkulacijemain WHERE kam_cdikalkulacijamain = ". $id;
-	$conn->query($sqlDelete);
+// 	$sqlDelete = "DELETE FROM kalkulacijemain WHERE kam_cdikalkulacijamain = ". $id;
+// 	$conn->query($sqlDelete);
 
-	if ($conn->affected_rows) {
+// 	if ($conn->affected_rows) {
 
-		$sqlDeleteDetail = "DELETE FROM kalkulacijedetail WHERE kad_cdikalkulacijamain = ". $id;
+// 		$sqlDeleteDetail = "DELETE FROM kalkulacijedetail WHERE kad_cdikalkulacijamain = ". $id;
+// 		$conn->query($sqlDeleteDetail);
+
+// 		if($conn->affected_rows){
+
+// 			echo 'ok';
+// 		}
+// 		else{
+
+// 			echo 'jok';
+// 		}
+// 	}
+// 	else{
+
+// 		echo 'jok';
+// 	}
+// }
+
+if ($akcija == 'brisanje') {
+
+	$idMain = $_POST['id'];
+
+	$sql = 
+	"SELECT * 
+	FROM kalkulacijedetail AS d
+	INNER JOIN kalkulacijemain AS m
+	ON m.kam_cdikalkulacijamain = d.kad_cdikalkulacijamain
+	WHERE m.kam_cdikalkulacijamain = ".$idMain;
+
+	$podaci = $conn->query($sql);
+
+	if($podaci->num_rows){
+
+		while ($row = $podaci->fetch_assoc()) {
+
+			$idArtikal = 		$row['kad_cdiartikal'];
+			$kolicina =			$row['kad_vlnkolicina'];
+			$idMagacin = 		$_COOKIE['id-magacin'];
+
+	///////////////////////////VRATI STARU KOL////////////////////////////////////////////
+			$sqlStaraKolicina =
+			"SELECT axm_vlnkolicina FROM artiklixmagacini WHERE axm_cdiartikal = ".$idArtikal." AND axm_cdimagacin = ".$idMagacin."";
+			$podaciStaraKolicina = $conn->query($sqlStaraKolicina);
+
+			while ($red=$podaciStaraKolicina->fetch_assoc()) {
+
+				$staraKol = $red['axm_vlnkolicina'];
+			}
+	//////////////////////////////////////////////////////////////////////
+
+			$novaKolicina = (int)$staraKol - (int)$kolicina;
+
+			$sqlUpdate = 
+			"UPDATE artiklixmagacini
+			SET  axm_vlnkolicina =".$novaKolicina." 
+			WHERE axm_cdimagacin = ".$idMagacin." AND axm_cdiartikal=".$idArtikal;
+
+		
+			$conn->query($sqlUpdate);
+
+		}
+
+		$sqlDeleteMain = 	"DELETE from kalkulacijemain WHERE kam_cdikalkulacijamain = ". $idMain;
+		$sqlDeleteDetail =	"DELETE from kalkulacijedetail WHERE kad_cdikalkulacijamain = ". $idMain; 
+
+		$conn->query($sqlDeleteMain);
 		$conn->query($sqlDeleteDetail);
 
-		if($conn->affected_rows){
-
-			echo 'ok';
-		}
-		else{
-
-			echo 'jok';
-		}
+		echo 'ok';
 	}
 	else{
-
-		echo 'jok';
+		echo 'ok';
+		$sqlDeleteMain = 	"DELETE from kalkulacijemain WHERE kam_cdikalkulacijamain = ". $idMain;
+		$conn->query($sqlDeleteMain);
 	}
 }
+
 
 if ($akcija=='novo') {
 

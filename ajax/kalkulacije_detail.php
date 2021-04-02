@@ -36,11 +36,11 @@ if ($akcija == 'pretraga') {
 		}
 //////////////////////////////////////////////////////////////////////////////////////////
 
-		$cenaPdv = 			(float)$cenaVp+ ((float)$poreskaStopa/100)*(float)$cenaVp;
+		$cenaPdv = 			((float)$cenaVp+ ((float)$poreskaStopa/100)*(float)$cenaVp);
 
-		$nabavnaVrednost = 	$cenaSaPopustom * (float)$kolicina;
-		$vpIznos = 			$cenaVp * (float)$kolicina;
-		$iznosPdv = 		$cenaPdv * (float)$kolicina;
+		$nabavnaVrednost = 	$cenaSaPopustom * (int)$kolicina;
+		$vpIznos = 			$cenaVp * (int)$kolicina;
+		$iznosPdv = 		$cenaPdv * (int)$kolicina;
 
 
 		

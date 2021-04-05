@@ -2,7 +2,12 @@
 include_once 'connection.php';
 
 
-$sqlMagacini = "SELECT * FROM magacini WHERE mag_cdimagacin > 0";
+$sqlMagacini = 
+"SELECT * FROM magacini as m
+INNER JOIN lokacije as l 
+ON  l.lok_cdilokacija = m.mag_cdilokacija
+WHERE mag_cdimagacin > 0";
+
 $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
 
 ?>
@@ -15,10 +20,15 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel='stylesheet' href='select2.css'>
+<!--     <link rel='stylesheet' href='select2.css'> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" integrity="sha512-kq3FES+RuuGoBW3a9R2ELYKRywUEQv0wvPTItv3DSGqjpbNtGWVdvT8qwdKkqvPzT93jp8tSF4+oN4IeTEIlQA==" crossorigin="anonymous" />
     <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
     <title>Hello, world!</title>
     <style>
         .select2-container{
@@ -35,8 +45,8 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
                 <a class="nav-item nav-link" href="http://localhost/ub_test/mesta.php">Mesta</a>
                 <a class="nav-item nav-link" href="http://localhost/ub_test/okruzi.php">Okruzi</a>
                 <a class="nav-item nav-link" href="#">Drzave</a>
-                <a class="nav-item nav-link" href="http://localhost/ub_test/kalkulacije.php">KALKULACIJE</a>
-                
+                <a class="nav-item nav-link" href="http://localhost/ub_test/kalkulacije.php">Kalkulacije</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/magacini.php">Magacini</a>   
             </div>
         </div>
     </nav>
@@ -49,20 +59,20 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
                         Petraga
                     </div>
                     <div class="card-body">
-                    <form id = 'formaPretraga'>
-                        <input type="hidden" name="akcija" value="pretraga">
+                    <!-- <form id = 'formaPretraga'> -->
+                        <!-- <input type="hidden" name="akcija" value="pretraga"> -->
                         <div class="form-group d-flex ">
                             <div class = "col-sm-3">
                                 <label for="usr">Naziv magacina:</label>
-                                <input name = 'magacin' type="text" class="form-control">
+                                <input id = 'magacin-pretraga' name = 'magacin' type="text" class="form-control">
                             </div>
 
                             <div class = "col-sm-3">
                             <label for="usr">Lokacija:</label>
                                 <div class='d-block'>
                                     
-                                    <select class='okrugSelect' name='okrug' class="mb-3">
-                                        <option value='-1' selected>Izaberi okrug:</option>
+                                    <select class = 'form-control' id = 'lokacija-pretraga'  name='lokacija'>
+                                        <option value='-1' selected>Izaberi lokaciju:</option>
                                         <?php
                                             $data = $conn->query($sqlLokacije);
                                             while ($row = $data->fetch_assoc()) {
@@ -77,7 +87,7 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
                             </div>
                         </div>
                         <button id = 'pretraga' class="btn btn-primary">Pretraži</button>
-                    </form>
+                    <!-- </form> -->
                     </div>
                 </div>
             </div>
@@ -95,57 +105,30 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
                         </div>                      
                     </div>
                     <div class="card-body">
-                    <table id='mytable' class="">
+
+                         <table id="tabela" class="display" style="width:100%">
                         <thead>
                             <tr>
-                                <th class ="text-center" style="width: 22px" scope="col">#</th>
-                                <th scope="col">Naziv</th>
-                                <th scope="col">Lok</th>
-
-                                <th class ='text-center' scope="col">Akcija</th>
+                                <th class="text-center">#</th>
+                                <th class="">Magacin</th>
+                                <th class="">Lokacija</th>
+                                <th class="text-center">Akcija</th>
+           
+                             
                             </tr>
                         </thead>
-
-                        <tbody id="osvezi">
-
-                        <?php
-                            $brojac = 1;
-                            $data = $conn->query($sqlMagacini);
-                            while ($row = $data->fetch_assoc()) {
-
-                            
-                        ?>
-                            <tr class='col-sm-12 red' id=<?=$brojac?>>
-                                <td class='text-center counter'><?=$brojac?></th>
-                                <td class='podatakMesto'><?=$row['mag_dssnaziv']?></td>
-                                <td class='podatakMesto'><?=$row['mag_dssnaziv']?></td>
-                                <td class ='d-flex'>
-                                    <div class="custom col-sm-6 p-1">
-                                        <div class='izmenaMagacina float-right' data-id='<?=$row['mag_cdimagacin']?>'  data-toggle="tooltip" data-placement="top" title="izmeni magacin">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                              <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="custom col-sm-6 p-1">
-                                        <div class='brisanjeMagacina' data-id='<?=$row['mag_cdimagacin']?>' data-toggle="tooltip" data-placement="top" title="izbriši magacin">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                              <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708z"/>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </td>
+                        
+<!-- 
+                        <tfoot>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="">Magacin</th>
+                                <th class="">Lokacija</th>
+                                <th class="text-center">Akcija</th>
                             </tr>
-                            <?php
-                            $brojac += 1;
-                            }
-                            ?>
-                        </tbody>
+                        </tfoot> -->
                     </table>
+
                     </div>
                 </div>
             </div>
@@ -154,7 +137,7 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
 
 
 
-    <div id='mestaModal' class="modal fade" tabindex="-1" role="dialog">
+    <div id='magaciniModal' class="modal fade" tabindex="-1" role="dialog">
 
     </div>
     <!-- Optional JavaScript -->
@@ -162,18 +145,167 @@ $sqlLokacije = "SELECT * FROM lokacije WHERE lok_cdilokacija > 0";
     <script src="jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="select2.min.js"></script>
+<!--     <script src="select2.min.js"></script> -->
     <script src="bootbox.min.js"></script>
     <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
     <script type="text/javascript" src="DataTables/datatables.min.js"></script>
-
+    <script type="text/javascript" src="js.cookie.min.js"></script>
+    <script type="text/javascript" src="jquery.cookie.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous"></script>
     <script>
     
   
         $( document ).ready(function() {
 
-          
+            $.cookie('naziv-magacin' , '-1')
+            $.cookie('id-lokacija' , '-1')
+//SELECT 2 --------------------------------------------------------
+            $('#lokacija-pretraga').select2({
+                theme : 'bootstrap'
+            })
+
+//CHANGE MAG -----------------------------------------------------------
+            $('#magacin-pretraga').on('change keyup', function(){
+                var naziv = $(this).val()
+                $.cookie('naziv-magacin' , naziv)
+            })
+//CHANGE LOK -----------------------------------------------------------
+            $('#lokacija-pretraga').on('change keyup', function(){
+                var lokacija = $(this).val()
+                $.cookie('id-lokacija' , lokacija)
+            })
+// PRETRAGA---------------------------------------------------------
+            $('#pretraga').on('click', function(){
+
+                $('#tabela').DataTable().ajax.reload()
+
+            })
+
+//DATA TABLES------------------------------------------------------------------
+
+             $('#tabela').DataTable({
+            language: {
+                "lengthMenu": "Prikaz po stranici _MENU_ ",
+                "emptyTable": "Nema rezultata",
+                "info": "Strana _PAGE_ od _PAGES_",
+                "paginate": {
+                "next": "Sledeća",
+                "previous": "Prethodna"
+                }
+            },
+            lengthMenu: [ 5, 10, 15, 20, 25 ],
+            searching: false,
+            ordering: false,
+            serverSide: true,
+            ajax: {
+              url: 'ajax/magacini_novo_izmena_brisanje.php',
+              dataSrc: 'data',
+              type: 'POST'
+            },
+              fnDrawCallback: function( oSettings ) {
+
+                   $('[data-toggle="tooltip"]').tooltip()
+
+                },
+
+                    columns: [
+            {data:'counter', className : 'text-center'},
+            {data:'magacin'},
+            {data:'lokacija'},
+            {data:'akcijaClick'},
+            ],
+            initComplete: function( settings, json ) {
+                $('[data-toggle="tooltip"]').tooltip()
+            }
         });
+
+// NOVO -------------------------------------------------------------------
+            $('#novo').on('click', function(){
+
+                $('#magaciniModal').load('./modals/magacini_modal.php',{'akcija':'novo'},function(){
+                    $('#magaciniModal').modal('show')
+                    $('#lokacije-modal').select2({
+                        theme : 'bootstrap'
+                    });
+                })
+            })
+
+// IZMENA -----------------------------------------------------------------------
+
+            $('body').on('click', '.izmenaMagacina', function(){
+
+                var idMagacina = $(this).attr('data-id-magacin');
+                var idLokacija = $(this).attr('data-id-lokacija');
+                var nazivMagacina = $(this).parent().parent().parent().parent().find('.podatakMagacin').html()
+
+                var str = {'akcija' : 'izmena' , 'idMagacina' : idMagacina , 'idLokacija' : idLokacija, 'nazivMagacina' : nazivMagacina}
+                console.log(str);
+                $('#magaciniModal').load('./modals/magacini_modal.php',str,function(){
+                    $('#magaciniModal').modal('show')
+                    $('#lokacije-modal').select2({
+                        theme : 'bootstrap'
+                    });
+                })
+                 $('body>.tooltip').remove();
+                 $('#tabela').DataTable().ajax.reload(null,false);
+
+            })
+// BRISANJE -----------------------------------------------------------------------------------
+
+             $('body').on('click', '.brisanjeMagacina', function(){
+
+              
+                //var nazivMagacina = $(this).parent().parent().parent().parent().find('.podatakMagacin').html()
+
+                var idMagacina = $(this).attr('data-id-magacin');
+                var str = {'akcija' : 'brisanje' , 'idMagacina' : idMagacina}
+
+
+                $.ajax({
+                    url: "./ajax/magacini_novo_izmena_brisanje.php",
+                    method: "POST",
+                    data: str
+                    }).success(function(response) {
+
+                        var json = JSON.parse(response)
+
+                        console.log(json);
+
+                        if (json['poruka'] == 'ok') {
+                            console.log(json['akcija'])
+                             $('body>.tooltip').remove();
+                            $('#tabela').DataTable().ajax.reload(null,false);
+                        }
+                    });
+
+            })
+
+// SACUVAJ - MODAL-----------------------------------------------------------------------------------------------
+
+            $('body').on('click', '#sacuvaj', function(e){
+                e.preventDefault();
+                var str = $('#modalForm').serialize();
+                //console.log(str)
+
+                $.ajax({
+                    url: "./ajax/magacini_novo_izmena_brisanje.php",
+                    method: "POST",
+                    data: str
+                    }).success(function(response) {
+                        var json = JSON.parse(response)
+
+                        if (json['poruka'] == 'ok') {
+
+                            console.log(json['akcija'])
+                        
+                            $('#magaciniModal').modal('hide');
+                            $('#tabela').DataTable().ajax.reload(null,false);
+                        }
+            })
+
+})
+          
+});
 
     </script>
   </body>

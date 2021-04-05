@@ -41,8 +41,8 @@ $sqlDrzave = "SELECT drz_dssnaziv, drz_cdidrzava FROM drzave WHERE drz_cdidrzava
                 <a class="nav-item nav-link" href="http://localhost/ub_test/mesta.php">Mesta</a>
                 <a class="nav-item nav-link" href="http://localhost/ub_test/okruzi.php">Okruzi</a>
                 <a class="nav-item nav-link" href="#">Drzave</a>
-                <a class="nav-item nav-link" href="http://localhost/ub_test/kalkulacije.php">KALKULACIJE</a>
-                
+                <a class="nav-item nav-link" href="http://localhost/ub_test/kalkulacije.php">Kalkulacije</a>
+                <a class="nav-item nav-link" href="http://localhost/ub_test/magacini.php">Magacini</a>   
             </div>
         </div>
     </nav>
